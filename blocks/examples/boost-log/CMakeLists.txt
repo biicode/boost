@@ -62,8 +62,11 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
+find_package(Threads)
 
-
+SET(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS log REQUIRED)
+target_link_libraries(${BII_BLOCK_TARGETS} PUBLIC ${Boost_LOG_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 
 

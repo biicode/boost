@@ -6,7 +6,6 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 
-#include <boost/install/install.hpp>
 #include <boost/phoenix/phoenix.hpp>
 #include <boost/proto/proto.hpp>
 #include <boost/proto/debug.hpp>

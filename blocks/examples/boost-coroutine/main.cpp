@@ -1,5 +1,4 @@
 
-#include <boost/install/install.hpp>
 #include <boost/coroutine/all.hpp>
 #include <iostream>
 

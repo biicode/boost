@@ -5,6 +5,8 @@
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
+include(boost/install/easy_install)
+
 # Initializes block variables
 INIT_BIICODE_BLOCK()
 # This function creates the following variables:
@@ -61,7 +63,8 @@ ADD_BIICODE_TARGETS()
 # endif()
 
 
-
+find_package(Threads)
+target_link_libraries(${BII_BLOCK_TARGETS} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 
 

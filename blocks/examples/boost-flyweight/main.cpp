@@ -9,8 +9,6 @@
  * See http://www.boost.org/libs/flyweight for library home page.
  */
 
-#include <boost/flyweight/install.hpp>
- 
 #include <boost/flyweight.hpp>
 #include <boost/flyweight/key_value.hpp>
 #include <boost/flyweight/no_tracking.hpp>
