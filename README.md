@@ -25,7 +25,7 @@ State of the circus
  - **examples/boost-filesystem**: Working   
  - **examples/boost-log**: **Not Working**. Does not link.       
 
- ### Mac OSX:
+### Mac OSX:
 
  - **Install hook**: Working
  - **examples/boost-flyweight**: Working
