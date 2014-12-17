@@ -13,6 +13,7 @@ install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
 script:
+  - bii init #Remember: bii/ folder ignored on git repo
   - bii find --update
   - bii cpp:configure -DCMAKE_CXX_COMPILER=$(which $CXX)
   - bii cpp:build
