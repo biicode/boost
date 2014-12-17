@@ -1,11 +1,11 @@
-#This CMakeLists.txt file helps defining your block building and compiling
+# This CMakeLists.txt file helps defining your block building and compiling
 # Include the main biicode macros and functions
 # To learn more about the CMake use with biicode, visit http://docs.biicode.com/c++/building.html
 # Or check the examples below
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
-include(boost/install/install)
+include(boost/install/easy_install)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -62,12 +62,11 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
-BII_BOOST(1.57.0)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+target_link_libraries(${BII_BLOCK_TARGETS} PUBLIC ${Boost_LIBRARIES})
 
-find_package(Boost COMPONENTS system coroutine REQUIRED)
-target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
-target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
+
 
 ##################################################################################################
 #
