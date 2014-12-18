@@ -62,9 +62,9 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
-find_package(Threads)
-target_link_libraries(${BII_BLOCK_TARGETS} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 
 

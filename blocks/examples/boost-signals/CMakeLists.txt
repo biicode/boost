@@ -65,7 +65,7 @@ ADD_BIICODE_TARGETS()
 
 find_package(Boost COMPONENTS system signals REQUIRED)
 
-target_link_libraries(${BII_BLOCK_TARGETS} PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
 
 

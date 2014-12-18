@@ -17,4 +17,3 @@ script:
   - bii find --update
   - bii cpp:configure -DCMAKE_CXX_COMPILER=$(which $CXX)
   - bii cpp:build
-  - ./bin/examples_boost-coroutine_main
