@@ -63,15 +63,30 @@ def install(filepath):
 def build_setup():
     if platform.system() == "Windows":
         bootstrapper = 'bootstrap.bat'
-        builder = 'b2.exe' 
-    else:
+        builder = 'b2.exe'
+        toolset = 'msvc'
+    elif platform.system() == "darwin":
         bootstrapper = 'bootstrap.sh'
         builder = 'b2'
+        toolset = 'clang'
+    elif platform.system() == "Linux":
+        bootstrapper = 'bootstrap.sh'
+        builder = 'b2'
+        toolset= 'gcc'
+    else:
+        raise RuntimeError("Unknown OS")
 
-    return os.path.join(sources_location, bootstrapper), os.path.join(sources_location, builder)
+    return os.path.join(sources_location, bootstrapper), os.path.join(sources_location, builder), toolset
 
 def build():
-    bootstrapper, builder = build_setup()
+    bii.out.info("OS: " + platform.system())
+
+    bootstrapper, builder, toolset = build_setup()
+
+    bii.out.info("Boost build setup:")
+    bii.out.info(" --> Bootstrap command: " + bootstrapper)
+    bii.out.info(" --> Build command: " + builder)
+    bii.out.info(" --> Toolset: " + toolset)
 
     if not os.path.exists(builder):
         bii.out.info("Building Boost libraries:")
@@ -81,7 +96,7 @@ def build():
         proc.wait()    
 
         bii.out.info(" - Building...")
-        proc = subprocess.Popen([builder, '--includedir=' + sources_location], cwd=sources_location)
+        proc = subprocess.Popen([builder, '--includedir=' + sources_location, '--toolset=' + toolset], cwd=sources_location)
         proc.wait()
     else:
         bii.out.info("Boost already builded. Nothing to do here")    
