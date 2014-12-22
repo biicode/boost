@@ -65,7 +65,7 @@ def build_setup():
         bootstrapper = 'bootstrap.bat'
         builder = 'b2.exe'
         toolset = 'gcc'
-    elif platform.system() == "darwin":
+    elif platform.system() == "Darwin":
         bootstrapper = 'bootstrap.sh'
         builder = 'b2'
         toolset = 'clang'
