@@ -23,7 +23,7 @@ State of the circus
  - **examples/boost-flyweight**: Working
  - **examples/boost-multiindex**: Working
  - **examples/boost-phoenix**: Working 
- - **examples/boost-coroutine**: Working
+ - **examples/boost-coroutine**: Broken. Linking against libboost-context errors. 
  - **examples/boost-filesystem**: Working   
  - **examples/boost-log**: **Not Working**. Does not link.       
 
@@ -33,7 +33,7 @@ State of the circus
  - **examples/boost-flyweight**: Working
  - **examples/boost-multiindex**: Working
  - **examples/boost-phoenix**: Working 
- - **examples/boost-coroutine**: Working
+ - **examples/boost-coroutine**: Not tested/disabled since fails on other platforms. Still investigating
  - **examples/boost-filesystem**: Not tested   
  - **examples/boost-log**: **Not Working**. Does not link.        
 
