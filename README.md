@@ -15,9 +15,9 @@ Notes
 State of the circus
 -------------------
 
-*The list bellow contains tests done before 2.0 release using development version of biicode. Those are outdated since the 2.0 release. Check the Travis CI build for the current status.*
+### Linux (GCC/Clang):
 
-### Linux:
+*Check travis build.*
 
  - **Install hook**: Working
  - **examples/boost-flyweight**: Working
@@ -27,7 +27,7 @@ State of the circus
  - **examples/boost-filesystem**: Working   
  - **examples/boost-log**: **Not Working**. Does not link.       
 
-### Mac OSX:
+### Mac OSX (Clang):
 
  - **Install hook**: Working
  - **examples/boost-flyweight**: Working
@@ -39,10 +39,20 @@ State of the circus
 
 ### Windows:
 
- - **Install hook**: Working
- - **examples/boost-flyweight**: Not tested
- - **examples/boost-multiindex**: Not tested
- - **examples/boost-phoenix**: Not tested 
- - **examples/boost-coroutine**: Not tested
- - **examples/boost-filesystem**: Not tested   
- - **examples/boost-log**: **Not Working**. Does not link.    
+  1. Visual Studio 12
+	- **Install hook**: Working
+	- **examples/boost-flyweight**: Working
+	- **examples/boost-multiindex**: Working
+	- **examples/boost-phoenix**: Working
+	- **examples/boost-coroutine**: Working. *Linker error "LNK1104: 'libboost_context-vc120-mt-gd-1_57.lib' cannop be openned". Boost binaries location (`BOOST_ROOT/stage/lib`) should be added explicitly to linker directories. Also, linking issues with shafe exception handling. Pass the `/SAFESEH:NO` option to disble it.*
+	- **examples/boost-filesystem**: Working 
+	- **examples/boost-log**: **Not Working**. Not tested  
+ 
+  2. MinGW GCC 4.9.1
+	- **Install hook**: Working
+	- **examples/boost-flyweight**: Working
+	- **examples/boost-multiindex**: Working
+	- **examples/boost-phoenix**: Working
+	- **examples/boost-coroutine**: Not working. Undefined references to symbols inside libboost_context. On GCC build there is no libboost_context.lib at `BOOST_ROOT/stage/lib/`?
+	- **examples/boost-filesystem**: Working 
+	- **examples/boost-log**: **Not Working**. Not tested  

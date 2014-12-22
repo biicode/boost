@@ -64,7 +64,7 @@ def build_setup():
     if platform.system() == "Windows":
         bootstrapper = 'bootstrap.bat'
         builder = 'b2.exe'
-        toolset = 'msvc'
+        toolset = 'gcc'
     elif platform.system() == "darwin":
         bootstrapper = 'bootstrap.sh'
         builder = 'b2'
@@ -96,7 +96,7 @@ def build():
         proc.wait()    
 
         bii.out.info(" - Building...")
-        proc = subprocess.Popen([builder, '--includedir=' + sources_location, '--toolset=' + toolset], cwd=sources_location)
+        proc = subprocess.Popen([builder, '--includedir=' + sources_location, '--toolset=' + toolset, '-j16', '--layout=versioned', '--build-type=complete'], cwd=sources_location)
         proc.wait()
     else:
         bii.out.info("Boost already builded. Nothing to do here")    
