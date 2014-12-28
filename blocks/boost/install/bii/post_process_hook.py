@@ -14,6 +14,7 @@ build_location = os.path.join(install_folder, "lib")
 link="shared"
 compiler = "gcc"
 build_disabled = False
+build_threads = 1
 
 def extract_zip(file, to):
     import zipfile
@@ -96,7 +97,7 @@ def build():
         proc.wait()    
 
         bii.out.info(" - Building...")
-        proc = subprocess.Popen([builder, '--includedir=' + sources_location, '--toolset=' + toolset, '-j16', '--layout=versioned', '--build-type=complete'], cwd=sources_location)
+        proc = subprocess.Popen([builder, '--includedir=' + sources_location, '--toolset=' + toolset, '-j' + str(build_trads), '--layout=versioned', '--build-type=complete'], cwd=sources_location)
         proc.wait()
     else:
         bii.out.info("Boost already builded. Nothing to do here")    
