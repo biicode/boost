@@ -5,6 +5,7 @@
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
+include(manu343726/oo-cmake/oo-cmake)
 # Initializes block variables
 INIT_BIICODE_BLOCK()
 
