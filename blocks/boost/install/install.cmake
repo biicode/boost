@@ -84,10 +84,6 @@ function(BII_BOOST_INSTALL_SETUP)
                                                      --layout=versioned 
                                                      --build-type=complete
                                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} b2 call")
-
-
-    #Print final setup
-    BII_BOOST_PRINT_SETUP()
 endfunction()
 
 
@@ -103,7 +99,7 @@ function(BII_BOOST_DOWNLOAD)
     endif()
 
 
-    if(NOT (EXISTS ${BII_BOOST_EXTRACT_DIR}))
+    if(NOT (EXISTS ${BII_BOOST_DIR}))
         message(STATUS "Extracting Boost ${BII_BOOST_VERSION} (${BII_BOOST_PACKAGE} in ${BII_BOOST_PACKAGE_PATH})...")
 
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${BII_BOOST_PACKAGE_PATH}" WORKING_DIRECTORY ${__BII_BOOST_TMPDIR})
@@ -144,35 +140,31 @@ endfunction()
 
 function(BII_BOOST_INSTALL)
     BII_BOOST_INSTALL_SETUP()
-    BII_BOOST_DOWNLOAD()
-    BII_BOOST_BOOTSTRAP()
-    BII_BOOST_BUILD()
-endfunction()
 
-macro(BII_BOOST)
-    message("Setting up biicode boost...")
+    if(NOT (__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY))
+        BII_BOOST_PRINT_SETUP()
 
-    if(${ARGC} EQUAL 0)
-        set(BII_BOOST_VERSION 1.57.0)
-    else()
-        set(BII_BOOST_VERSION ${ARGV0}) #For the future
+        BII_BOOST_DOWNLOAD()
+        BII_BOOST_BOOTSTRAP()
+        BII_BOOST_BUILD()
+
+        #Mark current setup (toolset + version) as built
+        set(__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY TRUE CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} w/ ${BII_BOOST_TOOLSET} toolset setup ready to use")
     endif()
 
-    set(BOOST_ROOT       "${BII_BOOST_DIR}")
-    set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
-    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib/")
+    set(BOOST_ROOT       "${BII_BOOST_DIR}"         CACHE INTERNAL "Boost root directory")
+    set(BOOST_INCLUDEDIR "${BOOST_ROOT}"            CACHE INTERNAL "Boost include directory")
+    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib/" CACHE INTERNAL "Boost library directory")
 
     find_package(Boost)
-    if (Boost_FOUND)
+    if(Boost_FOUND)
         include_directories(${Boost_INCLUDE_DIR})
         add_definitions( "-DHAS_BOOST" )
 
-        set(Boost_USE_STATIC_LIBS ON)
-
-        message(" - BOOST_ROOT       ${BOOST_ROOT}")
-        message(" - BOOST_INCLUDEDIR ${BOOST_INCLUDEDIR}")
-        message(" - BOOST_LIBRARYDIR ${BOOST_LIBRARYDIR}")
+        message(STATUS "BOOST_ROOT       ${BOOST_ROOT}")
+        message(STATUS "BOOST_INCLUDEDIR ${BOOST_INCLUDEDIR}")
+        message(STATUS "BOOST_LIBRARYDIR ${BOOST_LIBRARYDIR}")
     else()
-        message(FATAL_ERROR "Boost not found!")
+        message(FATAL_ERROR "Boost not found after biicode setup!")
     endif()
-endmacro()
+endfunction()
