@@ -33,6 +33,10 @@ function(BII_BOOST_INSTALL_SETUP)
         file(MAKE_DIRECTORY "${__BII_BOOST_TMPDIR}")
     endif()
 
+    if(NOT (EXISTS ${BIICODE_ENV_DIR}/boost/))
+        file(MAKE_DIRECTORY "${BIICODE_ENV_DIR}/boost/")
+    endif()
+
     if(CMAKE_SYSTEM_NAME MATCHES "Windows")
         set(__BII_BOOST_PACKAGE_TYPE zip)
     else()
@@ -73,6 +77,14 @@ function(BII_BOOST_INSTALL_SETUP)
         set(BII_BOOST_BUILD_J 1 CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build threads count")
     endif()
 
+    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR} CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap call")
+    set(__BII_BOOST_B2_CALL        ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} 
+                                                     --toolset=${BII_BOOST_TOOLSET} 
+                                                     -j${BII_BOOST_BUILD_J} 
+                                                     --layout=versioned 
+                                                     --build-type=complete
+                                   CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} b2 call")
+
 
     #Print final setup
     BII_BOOST_PRINT_SETUP()
@@ -94,7 +106,7 @@ function(BII_BOOST_DOWNLOAD)
     if(NOT (EXISTS ${BII_BOOST_EXTRACT_DIR}))
         message(STATUS "Extracting Boost ${BII_BOOST_VERSION} (${BII_BOOST_PACKAGE} in ${BII_BOOST_PACKAGE_PATH})...")
 
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzvf "${BII_BOOST_PACKAGE_PATH}" WORKING_DIRECTORY ${__BII_BOOST_TMPDIR})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${BII_BOOST_PACKAGE_PATH}" WORKING_DIRECTORY ${__BII_BOOST_TMPDIR})
     
         file(RENAME "${BII_BOOST_EXTRACT_DIR}" "${BII_BOOST_INSTALL_DIR}")
     endif()
@@ -103,23 +115,28 @@ endfunction()
 function(BII_BOOST_BOOTSTRAP)
     message(STATUS "Bootstrapping Boost ${BII_BOOST_VERSION}...")
 
-    if((NOT (EXISTS ${__BII_BOOST_B2})) OR (${BII_BOOST_BUILD_FORCE}))
-        execute_process(COMMAND "${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR}" 
-                        WORKING_DIRECTORY ${BII_BOOST_DIR} OUTPUT_VARIABLE OUTPUT RESULT_VARIABLE RESULT)
-
-        message(STATUS ${OUTPUT})
-        message(STATUS ${RESULT})
+    if((NOT (EXISTS ${__BII_BOOST_B2})) OR (${BII_BOOST_BOOTSTRAP_FORCE}))
+        execute_process(COMMAND ${__BII_BOOST_BOOTSTRAP_CALL} WORKING_DIRECTORY ${BII_BOOST_DIR}
+                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+        if(NOT Result EQUAL 0)
+            message(FATAL_ERROR "Failed running ${__BII_BOOST_BOOTSTRAP_CALL}:\n${Output}\n${Error}\n")
+        endif()
     else()
-        message(STATUS "Boost boostrapping aborted! b2 file already exists. Set BII_BOOST_BUILD_FORCE to override")
+        message(STATUS "Boost boostrapping aborted! b2 file already exists. Set BII_BOOST_BOOTSTRAP_FORCE to override")
     endif()
 endfunction()
 
 function(BII_BOOST_BUILD)
+    include(ExternalProject)
+
     message(STATUS "Building Boost ${BII_BOOST_VERSION} with toolset ${BII_BOOST_TOOLSET}...")
 
-    if((NOT (EXISTS ${BII_BOOST_DIR}/stage)))
-        execute_process(COMMAND "bash -c cd ${BII_BOOST_DIR} && ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} --toolset=${BII_BOOST_TOOLSET} -j${BII_BOOST_BUILD_J} --layout=versioned --build-type=complate" 
-                        WORKING_DIRECTORY ${BII_BOOST_DIR})
+    if((NOT (EXISTS ${BII_BOOST_DIR}/stage)) OR (${BII_BOOST_BUILD_FORCE}))
+        execute_process(COMMAND ${__BII_BOOST_B2_CALL} WORKING_DIRECTORY ${BII_BOOST_DIR}
+                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+        if(NOT Result EQUAL 0)
+            message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
+        endif()
     else()
         message(STATUS "Boost build aborted! Build output folder (${BII_BOOST_DIR}/stage) already exists. Set BII_BOOST_BUILD_FORCE to override")
     endif()
