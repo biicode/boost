@@ -70,7 +70,7 @@ target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 if(MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 else()
-	set_target_compiler_flags(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
+	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
 endif()
 
 ##################################################################################################

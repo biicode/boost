@@ -65,9 +65,9 @@ function(BII_BOOST_INSTALL_SETUP)
     endif()
 
     if(NOT (BII_BOOST_TOOLSET))
-        message(STATUS "BII_BOOST_TOOLSET not specified. Using ${__BII_BOOST_TOOLSET_DEFAULT}")
+        message(STATUS "BII_BOOST_TOOLSET not specified. Using ${__BII_BOOST_DEFAULT_TOOLSET}")
 
-        set(BII_BOOST_TOOLSET ${__BII_BOOST_TOOLSET_DEFAULT} CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build toolset")
+        set(BII_BOOST_TOOLSET ${__BII_BOOST_DEFAULT_TOOLSET} CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build toolset")
     endif()
 
     #Build
@@ -141,7 +141,7 @@ endfunction()
 function(BII_BOOST_INSTALL)
     BII_BOOST_INSTALL_SETUP()
 
-    if(NOT (EXISTS __BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY))
+    if(NOT (EXISTS ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY))
         BII_BOOST_PRINT_SETUP()
 
         BII_BOOST_DOWNLOAD()
@@ -149,7 +149,7 @@ function(BII_BOOST_INSTALL)
         BII_BOOST_BUILD()
 
         #Mark current setup (toolset + version) as built
-        file(WRITE __BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY "Biicode boost ${BII_BOOST_VERSION} w/ ${BII_BOOST_TOOLSET} toolset setup ready to use")
+        file(WRITE ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY "Biicode boost ${BII_BOOST_VERSION} w/ ${BII_BOOST_TOOLSET} toolset setup ready to use")
     endif()
 
     set(BOOST_ROOT       "${BII_BOOST_DIR}"         CACHE INTERNAL "Boost root directory")
