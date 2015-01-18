@@ -156,6 +156,12 @@ function(BII_BOOST_INSTALL)
     set(BOOST_INCLUDEDIR "${BOOST_ROOT}"            CACHE INTERNAL "Boost include directory")
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib/" CACHE INTERNAL "Boost library directory")
 
+
+    # CMake 3.1 on windows does not search for Boost 1.57.0 by default, this is a workaround
+    set(Boost_ADDITIONAL_VERSIONS ${BII_BOOST_VERSION} CACHE INTERNAL "")
+    # Disable searching on system Boost
+    set(Boost_NO_SYSTEM_PATHS TRUE CACHE INTERNAL "")
+
     find_package(Boost)
     if(Boost_FOUND)
         include_directories(${Boost_INCLUDE_DIR})

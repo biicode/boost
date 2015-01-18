@@ -62,11 +62,16 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
+include(manu343726/build_setup/compiler_flags)
 
 find_package(Boost COMPONENTS system coroutine context thread REQUIRED)
 target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
-target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
+if(MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
+else()
+	set_target_compiler_flags(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
+endif()
 
 ##################################################################################################
 #
