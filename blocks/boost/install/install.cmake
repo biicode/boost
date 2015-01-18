@@ -1,3 +1,6 @@
+include(boost/install/utils)
+
+
 function(BII_BOOST_PRINT_SETUP)
     message(STATUS "Boost version: ${BII_BOOST_VERSION}")
     message(STATUS "Upstream URL: ${BII_BOOST_DOWNLOAD_URL}")
@@ -51,21 +54,20 @@ function(BII_BOOST_INSTALL_SETUP)
     if(CMAKE_SYSTEM_NAME MATCHES "Windows")
         set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.bat CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap file")
         set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2.exe        CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build file")
-        set(__BII_BOOST_DEFAULT_TOOLSET msvc                      CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} default build toolset")
     elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
         set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.sh CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap file")
         set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2           CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build file")
-        set(__BII_BOOST_DEFAULT_TOOLSET clang                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} default build toolset")
     elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.sh CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap file")
         set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2           CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build file")
-        set(__BII_BOOST_DEFAULT_TOOLSET gcc                      CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} default build toolset")
     else()
         message(FATAL_ERROR "Unknown platform. Stopping Boost installation")
     endif()
 
     if(NOT (BII_BOOST_TOOLSET))
-        message(STATUS "BII_BOOST_TOOLSET not specified. Using ${__BII_BOOST_DEFAULT_TOOLSET}")
+        message(STATUS "BII_BOOST_TOOLSET not specified. Using ${CMAKE_CXX_COMPILER_ID} compiler")
+
+        BII_BOOST_COMPUTE_TOOLSET(__BII_BOOST_DEFAULT_TOOLSET)
 
         set(BII_BOOST_TOOLSET ${__BII_BOOST_DEFAULT_TOOLSET} CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build toolset")
     endif()
@@ -77,7 +79,11 @@ function(BII_BOOST_INSTALL_SETUP)
         set(BII_BOOST_BUILD_J 1 CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build threads count")
     endif()
 
-    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR} CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap call")
+    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} $<MINGW:"mingw"> 
+                                                             --prefix=${BII_BOOST_DIR} 
+                                                             --without-libraries=python #Boost.Python currently not supported by biicode. Oh the irony...
+                                   CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap call")
+
     set(__BII_BOOST_B2_CALL        ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} 
                                                      --toolset=${BII_BOOST_TOOLSET} 
                                                      -j${BII_BOOST_BUILD_J} 
@@ -141,7 +147,7 @@ endfunction()
 function(BII_BOOST_INSTALL)
     BII_BOOST_INSTALL_SETUP()
 
-    if(NOT (EXISTS ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY))
+    if((NOT (EXISTS ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY)) OR (${BII_BOOST_BUILD_FORCE}))
         BII_BOOST_PRINT_SETUP()
 
         BII_BOOST_DOWNLOAD()
@@ -161,6 +167,16 @@ function(BII_BOOST_INSTALL)
     set(Boost_ADDITIONAL_VERSIONS ${BII_BOOST_VERSION} CACHE INTERNAL "")
     # Disable searching on system Boost
     set(Boost_NO_SYSTEM_PATHS TRUE CACHE INTERNAL "")
+
+    # FindBoost auto-compute does not care about Clang?
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        COMPILER_VERSION(__clang_version)
+        string(REGEX REPLACE "([0-9])\\.([0-9])" "\\1\\2" __clang_version ${__clang_version})
+
+        set(Boost_COMPILER "-clang${__clang_version}" CACHE INTERNAL "Boost library suffix")
+
+        message(STATUS ">>>> Setting Boost_COMPILER suffix manually for clang: ${Boost_COMPILER}")
+    endif()
 
     find_package(Boost)
     if(Boost_FOUND)
