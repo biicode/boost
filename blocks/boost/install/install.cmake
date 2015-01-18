@@ -79,9 +79,7 @@ function(BII_BOOST_INSTALL_SETUP)
         set(BII_BOOST_BUILD_J 1 CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build threads count")
     endif()
 
-    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} $<MINGW:"mingw"> 
-                                                             --prefix=${BII_BOOST_DIR} 
-                                                             --without-libraries=python #Boost.Python currently not supported by biicode. Oh the irony...
+    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR} 
                                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap call")
 
     set(__BII_BOOST_B2_CALL        ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} 
@@ -89,6 +87,7 @@ function(BII_BOOST_INSTALL_SETUP)
                                                      -j${BII_BOOST_BUILD_J} 
                                                      --layout=versioned 
                                                      --build-type=complete
+                                                     --without-python
                                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} b2 call")
 endfunction()
 
