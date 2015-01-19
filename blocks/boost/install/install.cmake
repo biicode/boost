@@ -3,6 +3,7 @@ include(boost/install/utils)
 
 function(BII_BOOST_PRINT_SETUP)
     message(STATUS "Boost version: ${BII_BOOST_VERSION}")
+    message(STATUS "Libraries: ${BII_BOOST_LIBS}")
     message(STATUS "Upstream URL: ${BII_BOOST_DOWNLOAD_URL}")
     message(STATUS "Package: ${BII_BOOST_PACKAGE}")
     message(STATUS "Path to package: ${BII_BOOST_PACKAGE_PATH}")
@@ -72,6 +73,16 @@ function(BII_BOOST_INSTALL_SETUP)
         set(BII_BOOST_TOOLSET ${__BII_BOOST_DEFAULT_TOOLSET} CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build toolset")
     endif()
 
+    if(NOT (BII_BOOST_VARIANT))
+        if(NOT CMAKE_BUILD_TYPE)
+            set(CMAKE_BUILD_TYPE Release)
+        endif()
+
+        message(STATUS "BII_BOOST_VARIANT not specified. Using ${CMAKE_BUILD_TYPE} variant")
+
+        string(TOLOWER ${CMAKE_BUILD_TYPE} BII_BOOST_VARIANT)
+    endif()
+
     #Build
     if(NOT (BII_BOOST_BUILD_J))
         message(STATUS "BII_BOOST_BUILD_J not specified. Parallel build disabled")
@@ -79,7 +90,7 @@ function(BII_BOOST_INSTALL_SETUP)
         set(BII_BOOST_BUILD_J 1 CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build threads count")
     endif()
 
-    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR} 
+    set(__BII_BOOST_BOOTSTRAP_CALL "${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR}"
                                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap call")
 
     set(__BII_BOOST_B2_CALL        ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} 
@@ -87,7 +98,6 @@ function(BII_BOOST_INSTALL_SETUP)
                                                      -j${BII_BOOST_BUILD_J} 
                                                      --layout=versioned 
                                                      --build-type=complete
-                                                     --without-python
                                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} b2 call")
 endfunction()
 
@@ -133,11 +143,39 @@ function(BII_BOOST_BUILD)
     message(STATUS "Building Boost ${BII_BOOST_VERSION} with toolset ${BII_BOOST_TOOLSET}...")
 
     if(TRUE)
-        execute_process(COMMAND ${__BII_BOOST_B2_CALL} WORKING_DIRECTORY ${BII_BOOST_DIR}
-                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
-        if(NOT Result EQUAL 0)
-            message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
+        if(BII_BOOST_LIBS)
+            string(REGEX REPLACE "[,]" ";" __BII_BOOST_LIBS ${BII_BOOST_LIBS})
+
+            foreach(lib ${__BII_BOOST_LIBS})
+                message(STATUS "Building ${lib} library...")
+
+                set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
+                
+                execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
+                                RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+                if(NOT Result EQUAL 0)
+                    message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
+                endif()
+            endforeach()
+        else()
+            if(NOT (BII_BOOST_LIBS_EXCLUDED))
+                set(BII_BOOST_LIBS_EXCLUDED python)
+            endif()
+
+            string(REGEX REPLACE "[,]" ";" __BII_BOOST_LIBS_EXCLUDED ${BII_BOOST_LIBS_EXCLUDED})
+
+            foreach(lib ${__BII_BOOST_LIBS_EXCLUDED})
+                set(__BII_BOOST_B2_CALL ${__BII_BOOST_B2_CALL} --without-${lib})
+            endforeach()
+
+            execute_process(COMMAND ${__BII_BOOST_B2_CALL} WORKING_DIRECTORY ${BII_BOOST_DIR}
+                            RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+            if(NOT Result EQUAL 0)
+                message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
+            endif()
         endif()
+
+        
     else()
         message(STATUS "Boost build aborted! Build output folder (${BII_BOOST_DIR}/stage) already exists. Set BII_BOOST_BUILD_FORCE to override")
     endif()
@@ -180,6 +218,11 @@ function(BII_BOOST_INSTALL)
     find_package(Boost)
     if(Boost_FOUND)
         include_directories(${Boost_INCLUDE_DIR})
+
+        if(MSVC)
+            link_directories(${Boost_LIBRARYDIR})
+        endif()
+
         add_definitions( "-DHAS_BOOST" )
 
         message(STATUS "BOOST_ROOT       ${BOOST_ROOT}")
