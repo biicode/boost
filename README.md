@@ -50,7 +50,7 @@ Steps 2 to 4 are performed only if the required setup Boost-version + toolset (c
 Running a Boost-related block, minimal example
 ----------------------------------------------
 
-The idea is to hide all this complexity to the user. Using Boost was never this easier!
+The idea is to hide all this complexity to the user. Using Boost was never this easy!
 
 ```
 $ bii cpp:configure -G "Visual Studio 12"
@@ -90,4 +90,4 @@ To compile `Boost.Context`, MinGW depends on the Microsoft assembler. Be sure yo
 
 ### GCC toolset, linux
 
-b2 call may file when passing the gcc toolset automatically computed from the C++ compiler version. Just rerun `bii cpp:configure`.
+b2 call may fail when passing the gcc toolset automatically computed from the C++ compiler version. Just rerun `bii cpp:configure`.
