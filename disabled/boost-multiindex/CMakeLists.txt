@@ -5,7 +5,7 @@
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
-include(boost/install/install)
+include(boost/install/easy_install)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -61,20 +61,6 @@ ADD_BIICODE_TARGETS()
 # elseif(...)
 #     ...
 # endif()
-
-include(manu343726/build_setup/compiler_flags)
-
-set(BII_BOOST_LIBS system,coroutine,context,thread)
-BII_BOOST_INSTALL()
-
-find_package(Boost COMPONENTS system coroutine context thread REQUIRED)
-target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
-
-if(MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
-else()
-	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
-endif()
 
 ##################################################################################################
 #
