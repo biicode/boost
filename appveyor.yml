@@ -1,0 +1,29 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+    - generator: "MinGW Makefiles"
+    - generator: "Visual Studio 12"
+
+configuration:
+  - Debug
+  - Release
+
+install:
+  - cinst biicode mingw
+  - cmd: set PATH=%PATH:CMake 2.8\bin=%;C:\ProgramData\chocolatey\lib\cmake.3.0.2\content\cmake-3.0.2-win32-x86\bin
+  - cmd: set PATH=%PATH:Git\bin=%;C:\MinGW\bin
+  - cmd: set PATH=%PATH%;C:\Program Files (x86)\BiiCode\bii;  
+  - cmd: cmake --version
+  - cmd: g++ --version
+  - cmd: bii --version
+
+build_script:
+  - cmd: bii init
+  - cmd: bii cpp:configure -G "%generator%" -DCMAKE_BUILD_TYPE="%configuration%"
+  - cmd: bii cpp:build
+
+test_script:
+  - cmd: bin\manu343726_edalib_test.exe --reporter=info
+
+
