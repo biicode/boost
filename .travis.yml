@@ -8,8 +8,8 @@ before_install:
 
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-${GCC_VERSION}; fi
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq gcc-${GCC_VERSION}; fi
-  - if [ "$CXX" = "g++" ]; then sudo ln -s $(which $CXX) $(which g++-${GCC_VERSION}); fi
-  - if [ "$CXX" = "g++" ]; then sudo ln -s $(which $CC)  $(which gcc-${GCC_VERSION}); fi
+  - if [ "$CXX" = "g++" ]; then sudo ln -s -f $(which g++-${GCC_VERSION}) /usr/bin/g++ ; fi
+  - if [ "$CXX" = "g++" ]; then sudo ln -s -f $(which gcc-${GCC_VERSION}) /usr/bin/gcc ; fi
 install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
