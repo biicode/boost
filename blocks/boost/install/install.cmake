@@ -142,15 +142,15 @@ function(BII_BOOST_BOOTSTRAP)
         endif()
     else()
         if(BII_BOOST_VERBOSE)
-            message(STATUS "Boost boostrapping aborted! b2 file already exists. Set BII_BOOST_BOOTSTRAP_FORCE to override")
+            message(STATUS "Boost bootstrapping aborted! b2 file already exists. Set BII_BOOST_BOOTSTRAP_FORCE to override")
         endif()
     endif()
 endfunction()
 
 function(BII_BOOST_BUILD)
-    include(ExternalProject)
-
-    message(STATUS "Building Boost ${BII_BOOST_VERSION} components with toolset ${BII_BOOST_TOOLSET}...")
+    if(BII_BOOST_LIBS)
+        message(STATUS "Building Boost ${BII_BOOST_VERSION} components with toolset ${BII_BOOST_TOOLSET}...")
+    endif()
 
     foreach(lib ${BII_BOOST_LIBS})
         message(STATUS "Building ${lib} library...")
@@ -168,18 +168,13 @@ endfunction()
 function(BII_BOOST_INSTALL)
     BII_BOOST_INSTALL_SETUP()
 
-    if(TRUE OR (NOT (EXISTS ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY)) OR (${BII_BOOST_BUILD_FORCE}))
-        if(BII_BOOST_VERBOSE)
-            BII_BOOST_PRINT_SETUP()
-        endif()
-
-        BII_BOOST_DOWNLOAD()
-        BII_BOOST_BOOTSTRAP()
-        BII_BOOST_BUILD()
-
-        #Mark current setup (toolset + version) as built
-        file(WRITE ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY "Biicode boost ${BII_BOOST_VERSION} w/ ${BII_BOOST_TOOLSET} toolset setup ready to use")
+    if(BII_BOOST_VERBOSE)
+        BII_BOOST_PRINT_SETUP()
     endif()
+
+    BII_BOOST_DOWNLOAD()
+    BII_BOOST_BOOTSTRAP()
+    BII_BOOST_BUILD()
 
     set(BOOST_ROOT       "${BII_BOOST_DIR}"         CACHE INTERNAL "Boost root directory")
     set(BOOST_INCLUDEDIR "${BOOST_ROOT}"            CACHE INTERNAL "Boost include directory")
@@ -208,7 +203,13 @@ function(BII_BOOST_INSTALL)
         include_directories(${Boost_INCLUDE_DIR})
 
         if(MSVC)
-            link_directories(${Boost_LIBRARYDIR})
+            #Disable auto-linking with MSVC
+            add_definitions(-DBOOST_ALL_NO_LIB) 
+
+            #Use static linking if not specified
+            if(NOT (Boost_USE_STATIC_LIBS))
+                set(Boost_USE_STATIC_LIBS ON PARENT_SCOPE)
+            endif()
         endif()
 
         add_definitions( "-DHAS_BOOST" )
