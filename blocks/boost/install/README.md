@@ -17,19 +17,17 @@ Contents
 
 This project contains a set of blocks to test different boost libraries. These are blocks of the form `examples/boost-[BOOST_LIB]` containing examples extracted from Boost docs or other web resources available.
 
-Each example depends on the `boost/install` block, a CMake-only block with a hook which configures the required version of Boost. To use Boost in a block, just include `boost/install/install` and run `BII_BOOST_INSTALL()` function:
+Each example depends on the `boost/install` block, a CMake-only block with a hook which configures the required version of Boost. To use Boost in a block, just include `boost/install/install` and run `bii_find_boost()` function:
 
-``` cmake
-#Include Boost installer biicode block
-include(boost/install/install)
-
-BII_CONFIGURE_BLOCK()
-BII_BLOCK_TARGETS()
-
-#Use `bii_find_boost()`, our wrapper of `find_package(Boost)`:
-bii_find_boost(VERSION 1.57.0 COMPONENTS boost_lib another_boost_lib REQUIRED)
-target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
-```
+    #Include Boost installer biicode block
+    include(boost/install/install)
+    
+    BII_CONFIGURE_BLOCK()
+    BII_BLOCK_TARGETS()
+    
+    #Use `bii_find_boost()`, our wrapper of `find_package(Boost)`:
+    bii_find_boost(VERSION 1.57.0 COMPONENTS boost_lib another_boost_lib REQUIRED)
+    target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
 `bii_find_boost()`
 ------------------
