@@ -6,6 +6,7 @@
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
 include(boost/install/install)
+include(CMakeParseArguments)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -62,12 +63,7 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
-include(manu343726/build_setup/compiler_flags)
-
-set(BII_BOOST_LIBS system,coroutine,context,thread)
-BII_BOOST_INSTALL()
-
-find_package(Boost COMPONENTS system coroutine context thread REQUIRED)
+bii_find_boost(VERSION 1.57.0 COMPONENTS system coroutine context thread REQUIRED)
 target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
 if(MSVC)

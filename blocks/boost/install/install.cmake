@@ -20,7 +20,9 @@ function(BII_BOOST_INSTALL_SETUP)
     message(STATUS "Setting up biicode Boost configuration...")
 
     if(NOT (BII_BOOST_VERSION))
-        message(STATUS "BII_BOOST_VERSION not specified. Using Boost ${__BII_BOOST_VERSION_DEFAULT}")
+        if(BII_BOOST_VERBOSE)
+            message(STATUS "BII_BOOST_VERSION not specified. Using Boost ${__BII_BOOST_VERSION_DEFAULT}")
+        endif()
 
         set(BII_BOOST_VERSION ${__BII_BOOST_VERSION_DEFAULT} CACHE INTERNAL "Biicode boost version")
     endif()
@@ -66,7 +68,9 @@ function(BII_BOOST_INSTALL_SETUP)
     endif()
 
     if(NOT (BII_BOOST_TOOLSET))
-        message(STATUS "BII_BOOST_TOOLSET not specified. Using ${CMAKE_CXX_COMPILER_ID} compiler")
+        if(BII_BOOST_VERBOSE)
+            message(STATUS "BII_BOOST_TOOLSET not specified. Using ${CMAKE_CXX_COMPILER_ID} compiler")
+        endif()
 
         BII_BOOST_COMPUTE_TOOLSET(__BII_BOOST_DEFAULT_TOOLSET)
 
@@ -78,19 +82,23 @@ function(BII_BOOST_INSTALL_SETUP)
             set(CMAKE_BUILD_TYPE Release)
         endif()
 
-        message(STATUS "BII_BOOST_VARIANT not specified. Using ${CMAKE_BUILD_TYPE} variant")
+        if(BII_BOOST_VERBOSE)
+            message(STATUS "BII_BOOST_VARIANT not specified. Using ${CMAKE_BUILD_TYPE} variant")
+        endif()
 
         string(TOLOWER ${CMAKE_BUILD_TYPE} BII_BOOST_VARIANT)
     endif()
 
     #Build
     if(NOT (BII_BOOST_BUILD_J))
-        message(STATUS "BII_BOOST_BUILD_J not specified. Parallel build disabled")
+        if(BII_BOOST_VERBOSE)
+            message(STATUS "BII_BOOST_BUILD_J not specified. Parallel build disabled")
+        endif()
 
         set(BII_BOOST_BUILD_J 1 CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} build threads count")
     endif()
 
-    set(__BII_BOOST_BOOTSTRAP_CALL "${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR}"
+    set(__BII_BOOST_BOOTSTRAP_CALL ${__BII_BOOST_BOOSTRAPER} --prefix=${BII_BOOST_DIR}
                                    CACHE INTERNAL "Biicode boost ${BII_BOOST_VERSION} boostrap call")
 
     set(__BII_BOOST_B2_CALL        ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} 
@@ -107,10 +115,10 @@ function(BII_BOOST_DOWNLOAD)
         message(STATUS "Downloading Boost ${BII_BOOST_VERSION} from ${BII_BOOST_DOWNLOAD_URL}...") 
 
         file(DOWNLOAD "${BII_BOOST_DOWNLOAD_URL}" "${BII_BOOST_PACKAGE_PATH}" SHOW_PROGRESS STATUS RESULT)
-
-        message(STATUS ${RESULT})
     else()
-        message(STATUS "Download aborted. ${BII_BOOST_PACKAGE} was downloaded previously")   
+        if(BII_BOOST_VERBOSE)
+            message(STATUS "Download aborted. ${BII_BOOST_PACKAGE} was downloaded previously")   
+        endif()
     endif()
 
 
@@ -124,29 +132,29 @@ function(BII_BOOST_DOWNLOAD)
 endfunction()
 
 function(BII_BOOST_BOOTSTRAP)
-    message(STATUS "Bootstrapping Boost ${BII_BOOST_VERSION}...")
-
     if((NOT (EXISTS ${__BII_BOOST_B2})) OR (${BII_BOOST_BOOTSTRAP_FORCE}))
+        message(STATUS "Bootstrapping Boost ${BII_BOOST_VERSION}...")
+
         execute_process(COMMAND ${__BII_BOOST_BOOTSTRAP_CALL} WORKING_DIRECTORY ${BII_BOOST_DIR}
                         RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
         if(NOT Result EQUAL 0)
             message(FATAL_ERROR "Failed running ${__BII_BOOST_BOOTSTRAP_CALL}:\n${Output}\n${Error}\n")
         endif()
     else()
-        message(STATUS "Boost boostrapping aborted! b2 file already exists. Set BII_BOOST_BOOTSTRAP_FORCE to override")
+        if(BII_BOOST_VERBOSE)
+            message(STATUS "Boost boostrapping aborted! b2 file already exists. Set BII_BOOST_BOOTSTRAP_FORCE to override")
+        endif()
     endif()
 endfunction()
 
 function(BII_BOOST_BUILD)
     include(ExternalProject)
 
-    message(STATUS "Building Boost ${BII_BOOST_VERSION} with toolset ${BII_BOOST_TOOLSET}...")
+    message(STATUS "Building Boost ${BII_BOOST_VERSION} components with toolset ${BII_BOOST_TOOLSET}...")
 
     if(TRUE)
         if(BII_BOOST_LIBS)
-            string(REGEX REPLACE "[,]" ";" __BII_BOOST_LIBS ${BII_BOOST_LIBS})
-
-            foreach(lib ${__BII_BOOST_LIBS})
+            foreach(lib ${BII_BOOST_LIBS})
                 message(STATUS "Building ${lib} library...")
 
                 set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
@@ -162,9 +170,7 @@ function(BII_BOOST_BUILD)
                 set(BII_BOOST_LIBS_EXCLUDED python)
             endif()
 
-            string(REGEX REPLACE "[,]" ";" __BII_BOOST_LIBS_EXCLUDED ${BII_BOOST_LIBS_EXCLUDED})
-
-            foreach(lib ${__BII_BOOST_LIBS_EXCLUDED})
+            foreach(lib ${BII_BOOST_LIBS_EXCLUDED})
                 set(__BII_BOOST_B2_CALL ${__BII_BOOST_B2_CALL} --without-${lib})
             endforeach()
 
@@ -185,7 +191,9 @@ function(BII_BOOST_INSTALL)
     BII_BOOST_INSTALL_SETUP()
 
     if(TRUE OR (NOT (EXISTS ${BIICODE_ENV_DIR}/boost/__BII_BOOST_SETUP_${BII_BOOST_VERSION}_${BII_BOOST_TOOLSET}_READY)) OR (${BII_BOOST_BUILD_FORCE}))
-        BII_BOOST_PRINT_SETUP()
+        if(BII_BOOST_VERBOSE)
+            BII_BOOST_PRINT_SETUP()
+        endif()
 
         BII_BOOST_DOWNLOAD()
         BII_BOOST_BOOTSTRAP()
@@ -212,7 +220,9 @@ function(BII_BOOST_INSTALL)
 
         set(Boost_COMPILER "-clang${__clang_version}" CACHE INTERNAL "Boost library suffix")
 
-        message(STATUS ">>>> Setting Boost_COMPILER suffix manually for clang: ${Boost_COMPILER}")
+        if(BII_BOOST_VERBOSE)
+            message(STATUS ">>>> Setting Boost_COMPILER suffix manually for clang: ${Boost_COMPILER}")
+        endif()
     endif()
 
     find_package(Boost)
@@ -224,11 +234,42 @@ function(BII_BOOST_INSTALL)
         endif()
 
         add_definitions( "-DHAS_BOOST" )
-
-        message(STATUS "BOOST_ROOT       ${BOOST_ROOT}")
-        message(STATUS "BOOST_INCLUDEDIR ${BOOST_INCLUDEDIR}")
-        message(STATUS "BOOST_LIBRARYDIR ${BOOST_LIBRARYDIR}")
     else()
         message(FATAL_ERROR "Boost not found after biicode setup!")
     endif()
+endfunction()
+
+function(BII_FIND_BOOST)
+    set(options REQUIRED)
+    set(oneValueArgs VERSION TOOLSET)
+    set(multiValueArgs COMPONENTS)
+    cmake_parse_arguments(BII_FIND_BOOST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    if(BII_FIND_BOOST_VERSION)
+        set(BII_BOOST_VERSION ${BII_FIND_BOOST_VERSION})
+    endif()
+
+    if(BII_FIND_BOOST_TOOLSET)
+        set(BII_BOOST_TOOLSET ${BII_FIND_BOOST_TOOLSET})
+    endif()    
+
+    set(BII_BOOST_LIBS ${BII_FIND_BOOST_COMPONENTS})
+
+    if(BII_FIND_BOOST_REQUIRED)
+        set(REQUIRED_FLAG "REQUIRED")
+    else()
+        set(REQUIRED_FLAG)
+    endif()
+
+    BII_BOOST_INSTALL()
+
+    if(BII_BOOST_VERBOSE)
+        message(STATUS "BOOST_ROOT       ${BOOST_ROOT}")
+        message(STATUS "BOOST_INCLUDEDIR ${BOOST_INCLUDEDIR}")
+        message(STATUS "BOOST_LIBRARYDIR ${BOOST_LIBRARYDIR}")
+    endif()
+
+    find_package(Boost COMPONENTS ${BII_FIND_BOOST_COMPONENTS} ${REQUIRED_FLAG})
+
+    set(Boost_LIBRARIES ${Boost_LIBRARIES} PARENT_SCOPE)
 endfunction()
