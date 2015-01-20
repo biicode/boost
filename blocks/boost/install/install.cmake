@@ -152,39 +152,17 @@ function(BII_BOOST_BUILD)
 
     message(STATUS "Building Boost ${BII_BOOST_VERSION} components with toolset ${BII_BOOST_TOOLSET}...")
 
-    if(TRUE)
-        if(BII_BOOST_LIBS)
-            foreach(lib ${BII_BOOST_LIBS})
-                message(STATUS "Building ${lib} library...")
+    foreach(lib ${BII_BOOST_LIBS})
+        message(STATUS "Building ${lib} library...")
 
-                set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
-                
-                execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
-                                RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
-                if(NOT Result EQUAL 0)
-                    message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
-                endif()
-            endforeach()
-        else()
-            if(NOT (BII_BOOST_LIBS_EXCLUDED))
-                set(BII_BOOST_LIBS_EXCLUDED python)
-            endif()
-
-            foreach(lib ${BII_BOOST_LIBS_EXCLUDED})
-                set(__BII_BOOST_B2_CALL ${__BII_BOOST_B2_CALL} --without-${lib})
-            endforeach()
-
-            execute_process(COMMAND ${__BII_BOOST_B2_CALL} WORKING_DIRECTORY ${BII_BOOST_DIR}
-                            RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
-            if(NOT Result EQUAL 0)
-                message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
-            endif()
-        endif()
-
+        set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
         
-    else()
-        message(STATUS "Boost build aborted! Build output folder (${BII_BOOST_DIR}/stage) already exists. Set BII_BOOST_BUILD_FORCE to override")
-    endif()
+        execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
+                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+        if(NOT Result EQUAL 0)
+            message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
+        endif()
+    endforeach()
 endfunction()
 
 function(BII_BOOST_INSTALL)
