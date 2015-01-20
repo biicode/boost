@@ -17,5 +17,5 @@ install:
 script:
   - bii init #Remember: bii/ folder ignored on git repo
   - bii find --update
-  - bii cpp:configure -DCMAKE_CXX_COMPILER=$(which $CXX) -DCMAKE_C_COMPILER=$(which $CC) -DBII_BOOST_BUILD_J=4
+  - bii cpp:configure || bii cpp:configure
   - bii cpp:build
