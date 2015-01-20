@@ -5,7 +5,7 @@
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
-include(boost/install/easy_install)
+include(boost/install/install)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -61,6 +61,8 @@ ADD_BIICODE_TARGETS()
 # elseif(...)
 #     ...
 # endif()
+
+bii_find_boost(VERSION 1.57.0)
 
 ##################################################################################################
 #
