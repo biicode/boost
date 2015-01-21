@@ -1,4 +1,5 @@
 include(boost/install/utils)
+include(CMakeParseArguments)
 
 
 function(BII_BOOST_PRINT_SETUP)
@@ -186,12 +187,43 @@ function(BII_BOOST_INSTALL)
     # Disable searching on system Boost
     set(Boost_NO_SYSTEM_PATHS TRUE CACHE INTERNAL "")
 
+    if(BII_BOOST_VERBOSE)
+        message(STATUS ">>>> Patching ${CMAKE_CXX_COMPILER_ID}...")
+        message(STATUS ">>>> ${CMAKE_SYSTEM_NAME}")
+    endif()
+
     # FindBoost auto-compute does not care about Clang?
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        COMPILER_VERSION(__clang_version)
-        string(REGEX REPLACE "([0-9])\\.([0-9])" "\\1\\2" __clang_version ${__clang_version})
+        if(NOT (CMAKE_SYSTEM_NAME MATCHES "Darwin"))    
+            COMPILER_VERSION(__clang_version)
+            string(REGEX REPLACE "([0-9])\\.([0-9])" "\\1\\2" __clang_version ${__clang_version})
 
-        set(Boost_COMPILER "-clang${__clang_version}" CACHE INTERNAL "Boost library suffix")
+            set(Boost_COMPILER "-clang${__clang_version}" CACHE INTERNAL "Boost library suffix")
+        else()
+            file(GLOB __clang_libs RELATIVE "${BII_BOOST_DIR}/stage/lib/" "${BII_BOOST_DIR}/stage/lib/*clang*")
+
+            if(__clang_libs)
+                list(GET __clang_libs 0 __clang_lib)
+
+                if(BII_BOOST_VERBOSE)
+                    foreach(lib ${__clang_libs})
+                        message(STATUS ">>>> ${lib}")
+                    endforeach()
+
+                    message(STATUS ">>> Suffix source: ${__clang_lib}")
+                endif()
+
+                string(REGEX REPLACE ".*(-clang-darwin[0-9]+).*" "\\1" __suffix ${__clang_lib})
+
+                if(BII_BOOST_VERBOSE)
+                    message(STATUS ">>>> Suffix: ${__suffix}")
+                endif()
+
+                set(Boost_COMPILER ${__suffix} CACHE INTERNAL "Boost library suffix")
+            else()
+                message(FATAL_ERROR "Unable to compute Boost compiler suffix from Clang libraries names")
+            endif()
+        endif()
 
         if(BII_BOOST_VERBOSE)
             message(STATUS ">>>> Setting Boost_COMPILER suffix manually for clang: ${Boost_COMPILER}")
@@ -205,11 +237,11 @@ function(BII_BOOST_INSTALL)
         if(MSVC)
             #Disable auto-linking with MSVC
             add_definitions(-DBOOST_ALL_NO_LIB) 
+        endif()
 
-            #Use static linking if not specified
-            if(NOT (Boost_USE_STATIC_LIBS))
-                set(Boost_USE_STATIC_LIBS ON PARENT_SCOPE)
-            endif()
+        #Use static linking if not specified
+        if(NOT (Boost_USE_STATIC_LIBS))
+            set(Boost_USE_STATIC_LIBS ON PARENT_SCOPE)
         endif()
 
         add_definitions( "-DHAS_BOOST" )

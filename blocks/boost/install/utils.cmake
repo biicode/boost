@@ -63,7 +63,7 @@ function(BII_BOOST_COMPUTE_TOOLSET _ret)
 
 	COMPILER_VERSION(__version)
 
-	if(__version)
+    if(__version AND (NOT (CMAKE_SYSTEM_NAME MATCHES "Darwin")))
 		set(${_ret} "${__toolset_name}-${__version}" PARENT_SCOPE)
 	else()
 		set(${_ret} "${__toolset_name}"              PARENT_SCOPE)
