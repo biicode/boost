@@ -201,11 +201,7 @@ function(BII_BOOST_INSTALL)
     set(Boost_ADDITIONAL_VERSIONS ${BII_BOOST_VERSION} CACHE INTERNAL "")
     # Disable searching on system Boost
     set(Boost_NO_SYSTEM_PATHS TRUE CACHE INTERNAL "")
-
-    if(BII_BOOST_VERBOSE)
-        message(STATUS ">>>> Patching ${CMAKE_CXX_COMPILER_ID}...")
-        message(STATUS ">>>> ${CMAKE_SYSTEM_NAME}")
-    endif()
+    
 
     # FindBoost auto-compute does not care about Clang?
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -221,10 +217,6 @@ function(BII_BOOST_INSTALL)
                 list(GET __clang_libs 0 __clang_lib)
 
                 if(BII_BOOST_VERBOSE)
-                    foreach(lib ${__clang_libs})
-                        message(STATUS ">>>> ${lib}")
-                    endforeach()
-
                     message(STATUS ">>> Suffix source: ${__clang_lib}")
                 endif()
 
@@ -252,6 +244,10 @@ function(BII_BOOST_INSTALL)
         if(MSVC)
             #Disable auto-linking with MSVC
             add_definitions(-DBOOST_ALL_NO_LIB) 
+        endif()
+
+        if(BII_BOOST_VERBOSE)
+            message(STATUS ">>>> Boost_USE_STATIC_LIBS: ${Boost_USE_STATIC_LIBS}")
         endif()
 
         #Use static linking if not specified
