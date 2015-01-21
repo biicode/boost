@@ -20,7 +20,7 @@ install:
 
 build_script:
   - cmd: bii init
-  - cmd: bii cpp:configure -G "%generator%" -DCMAKE_BUILD_TYPE="%configuration%"
+  - cmd: bii cpp:configure -G "%generator%" -DCMAKE_BUILD_TYPE="%configuration%" || bii cpp:configure -G "%generator%" -DCMAKE_BUILD_TYPE="%configuration%"
   - cmd: bii cpp:build
 
 test_script:
