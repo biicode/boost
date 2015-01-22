@@ -62,8 +62,8 @@ ADD_BIICODE_TARGETS()
 # elseif(...)
 #     ...
 # endif()
-
-bii_find_boost(VERSION 1.57.0 COMPONENTS system coroutine context thread REQUIRED)
+set(Boost_USE_STATIC_LIBS ON)
+bii_find_boost(VERSION 1.57.0 COMPONENTS system coroutine context thread REQUIRED STATIC)
 target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 
 if(MSVC)
