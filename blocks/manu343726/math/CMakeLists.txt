@@ -1,4 +1,4 @@
-include(boost/install/install)
+include(biicode/boost/setup)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -6,7 +6,7 @@ INIT_BIICODE_BLOCK()
 # Actually create targets: EXEcutables and libraries.
 ADD_BIICODE_TARGETS()
 
-bii_find_boost(VERSION 1.57.0)
+bii_find_boost()
 
 # You can safely delete lines from here...
 

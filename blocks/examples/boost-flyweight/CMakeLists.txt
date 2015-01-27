@@ -5,7 +5,7 @@
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
-include(boost/install/install)
+include(biicode/boost/setup)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -64,7 +64,7 @@ ADD_BIICODE_TARGETS()
 
 
 find_package(Threads)
-bii_find_boost(VERSION 1.57.0)
+bii_find_boost()
 target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${CMAKE_THREAD_LIBS_INIT})
 
 

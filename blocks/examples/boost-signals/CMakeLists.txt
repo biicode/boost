@@ -5,7 +5,7 @@
 
 
 include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
-include(boost/install/install)
+include(biicode/boost/setup)
 
 # Initializes block variables
 INIT_BIICODE_BLOCK()
@@ -63,7 +63,7 @@ ADD_BIICODE_TARGETS()
 # endif()
 
 
-bii_find_boost(VERSION 1.57.0 COMPONENTS system signals REQUIRED)
+bii_find_boost(COMPONENTS system signals REQUIRED)
 
 target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 

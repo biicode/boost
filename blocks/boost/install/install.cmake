@@ -104,12 +104,16 @@ function(BII_BOOST_INSTALL)
     #Version
     set(__BII_BOOST_VERSION_DEFAULT 1.57.0)
 
+    if(DEFINED BII_BOOST_GLOBAL_OVERRIDE_VERSION)
+        set(BII_BOOST_VERSION ${BII_BOOST_GLOBAL_OVERRIDE_VERSION} ${SCOPE})
+    endif()
+
     if(NOT (BII_BOOST_VERSION))
         if(BII_BOOST_VERBOSE)
             message(STATUS "BII_BOOST_VERSION not specified. Using Boost ${__BII_BOOST_VERSION_DEFAULT}")
         endif()
 
-        set(BII_BOOST_VERSION ${__BII_BOOST_VERSION_DEFAULT} CACHE INTERNAL "Biicode boost version")
+        set(BII_BOOST_VERSION ${__BII_BOOST_VERSION_DEFAULT} ${SCOPE})
     endif()
 
     string(REGEX REPLACE  "[.]" "_" __BII_BOOST_VERSION_LABEL ${BII_BOOST_VERSION})
@@ -252,7 +256,7 @@ function(BII_BOOST_INSTALL)
             set(Boost_COMPILER "-clang${__clang_version}" CACHE INTERNAL "Boost library suffix")
         else()
             #On Darwin (OSX) the suffix is extracted from library binary names. That's why this setup is
-            #done after build, instead of at BII_BOOST_INSTALL_SETUP()
+            #done after build
 
 
             file(GLOB __clang_libs RELATIVE "${BII_BOOST_DIR}/stage/lib/" "${BII_BOOST_DIR}/stage/lib/*clang*")
@@ -300,7 +304,7 @@ function(BII_BOOST_INSTALL)
     endif()
 endfunction()
 
-function(BII_FIND_BOOST)
+function(BII_INSTALL_BOOST)
     set(options REQUIRED STATIC DYNAMIC)
     set(oneValueArgs VERSION TOOLSET)
     set(multiValueArgs COMPONENTS)
@@ -326,7 +330,7 @@ function(BII_FIND_BOOST)
         if(BII_FIND_BOOST_STATIC AND BII_FIND_BOOST_DYNAMIC)
             message(FATAL_ERROR "You can't use both static and dynamic linking with Boost at the same time! Please select only one")
         elseif((NOT (DEFINED Boost_USE_STATIC_LIBS)) AND ((NOT BII_FIND_BOOST_STATIC) AND (NOT BII_FIND_BOOST_DYNAMIC)))
-            message(WARNING "No linking type specified. Assuming static linking")
+            message(STATUS "No linking type specified. Assuming static linking")
             set(BII_FIND_BOOST_STATIC TRUE)
         endif()
 
@@ -345,6 +349,14 @@ function(BII_FIND_BOOST)
     endif()
 
     BII_BOOST_INSTALL()
+
+    set(BII_FIND_BOOST_COMPONENTS ${BII_FIND_BOOST_COMPONENTS} PARENT_SCOPE)
+    set(REQUIRED_FLAG             ${REQUIRED_FLAG}             PARENT_SCOPE)
+    set(Boost_USE_STATIC_LIBS     ${Boost_USE_STATIC_LIBS}     PARENT_SCOPE)
+endfunction()
+
+function(BII_FIND_BOOST)
+    BII_INSTALL_BOOST(${ARGN})
 
     find_package(Boost COMPONENTS ${BII_FIND_BOOST_COMPONENTS} ${REQUIRED_FLAG})
 
