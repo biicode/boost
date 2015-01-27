@@ -6,6 +6,7 @@ env:
   global:
     - GCC_VERSION="4.9" 
     - BII_BOOST_VERBOSE="ON"
+    - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS}" 
   matrix:
     - BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
     - BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
@@ -31,10 +32,9 @@ before_install:
 install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
-  - $CXX --version
-  - alias configure_call='bii cpp:configure -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS}'  
+  - $CXX --version 
 script:
   - bii init #Remember: bii/ folder ignored on git repo
   - bii find --update
-  - configure_call || configure_call
+  - bii cpp:configure $configure_params || bii cpp:configure $configure_params
   - bii cpp:build
