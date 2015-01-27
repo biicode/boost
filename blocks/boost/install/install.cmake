@@ -288,7 +288,7 @@ function(BII_BOOST_INSTALL)
 
     #Forward Boost variables out
 
-    find_package(Boost)
+    find_package(Boost ${BII_BOOST_VERSION})
     if(Boost_FOUND)
         include_directories(${Boost_INCLUDE_DIR})
 
@@ -302,6 +302,10 @@ function(BII_BOOST_INSTALL)
     else()
         message(FATAL_ERROR "Boost not found after biicode setup!")
     endif()
+
+    set(BOOST_ROOT       "${BII_BOOST_DIR}"         PARENT_SCOPE)
+    set(BOOST_INCLUDEDIR "${BOOST_ROOT}"            PARENT_SCOPE)
+    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib/" PARENT_SCOPE)
 endfunction()
 
 function(BII_INSTALL_BOOST)
@@ -353,10 +357,21 @@ function(BII_INSTALL_BOOST)
     set(BII_FIND_BOOST_COMPONENTS ${BII_FIND_BOOST_COMPONENTS} PARENT_SCOPE)
     set(REQUIRED_FLAG             ${REQUIRED_FLAG}             PARENT_SCOPE)
     set(Boost_USE_STATIC_LIBS     ${Boost_USE_STATIC_LIBS}     PARENT_SCOPE)
+
+    #FindBoost directories
+    set(BOOST_ROOT       "${BII_BOOST_DIR}"         PARENT_SCOPE)
+    set(BOOST_INCLUDEDIR "${BOOST_ROOT}"            PARENT_SCOPE)
+    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib/" PARENT_SCOPE)
 endfunction()
 
 function(BII_FIND_BOOST)
     BII_INSTALL_BOOST(${ARGN})
+
+    if(BII_BOOST_VERBOSE)
+        message(STATUS "BOOST_ROOT       ${BOOST_ROOT}")
+        message(STATUS "BOOST_INCLUDEDIR ${BOOST_INCLUDEDIR}")
+        message(STATUS "BOOST_LIBRARYDIR ${BOOST_LIBRARYDIR}")
+    endif()
 
     find_package(Boost COMPONENTS ${BII_FIND_BOOST_COMPONENTS} ${REQUIRED_FLAG})
 
