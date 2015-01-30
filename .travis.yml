@@ -1,18 +1,18 @@
 language: cpp
 compiler:
-  #- gcc
+  - gcc
   - clang
 env:
   matrix:
     - LIBCXX=true BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
     - LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
-    #- LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
-    #- LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
+    - LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
+    - LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
 
     - LIBCXX=true BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
     - LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
-    #- LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
-    #- LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
+    - LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
+    - LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
   global:
     - GCC_VERSION="4.9"
     - BII_BOOST_VERBOSE="ON"
@@ -47,13 +47,14 @@ before_install:
   - if [ "$LIBCXX" == "true" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
   - if [ "$LIBCXX" == "true" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
   - if [ "$LIBCXX" == "true" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/"; fi
-  - if [ "$LIBCXX" == "true" ]; then CXX_LINKER_FLAGS="${CXX_LINKER_FLAGS} -L/usr/lib/ -lc++"; fi
+  - if [ "$LIBCXX" == "true" ]; then CXX_LINKER_FLAGS="${CXX_LINKER_FLAGS} -stdlib=libc++ -L/usr/lib/ -lc++"; fi
+  - if [ "$LIBCXX" == "true" ]; then BII_BOOST_LIBCXX="ON"; else BII_BOOST_LIBCXX="OFF"; fi
   - if [ "$CXX" == "clang++" ]; then export NO_CXX11_ALLOC="-DBOOST_NO_CXX11_ALLOCATOR=1"; fi
 install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
   - $CXX --version 
-  - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS} -DCMAKE_CXX_FLAGS=\"${NO_CXX11_ALLOC} ${CXX_FLAGS}\" -DCMAKE_EXE_LINKER_FLAGS=\"${CXX_LINKER_FLAGS}\""
+  - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS} -DBII_BOOST_LIBCXX=${BII_BOOST_LIBCXX} -DCMAKE_CXX_FLAGS=\"${NO_CXX11_ALLOC} ${CXX_FLAGS}\" -DCMAKE_EXE_LINKER_FLAGS=\"${CXX_LINKER_FLAGS}\""
 script:
   - bii init #Remember: bii/ folder ignored on git repo
   - bii find --update
