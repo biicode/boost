@@ -47,7 +47,7 @@ before_install:
   - if [ "$LIBCXX" == "true" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
   - if [ "$LIBCXX" == "true" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
   - if [ "$LIBCXX" == "true" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/"; fi
-  - if [ "$LIBCXX" == "true" ]; then CXX_LINKER_FLAGS="${CXX_LINKER_FLAGS} -L/usr/lib/ -lc++ -lc++abi"; fi
+  - if [ "$LIBCXX" == "true" ]; then CXX_LINKER_FLAGS="${CXX_LINKER_FLAGS} -L/usr/lib/ -lc++"; fi
   - if [ "$CXX" == "clang++" ]; then export NO_CXX11_ALLOC="-DBOOST_NO_CXX11_ALLOCATOR=1"; fi
 install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
