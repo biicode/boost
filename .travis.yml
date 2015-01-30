@@ -28,11 +28,12 @@ before_install:
   - if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/; fi
   - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
   - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
+  - if [ "$CXX" == "clang++" ]; then export NO_CXX11_ALLOC="-DBOOST_NO_CXX11_ALLOCATOR=1"; fi
 install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
   - $CXX --version 
-  - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS}" 
+  - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS} -DCMAKE_CXX_FLAGS=$NO_CXX11_ALLOC" 
 script:
   - bii init #Remember: bii/ folder ignored on git repo
   - bii find --update
