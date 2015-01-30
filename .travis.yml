@@ -53,7 +53,7 @@ install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
   - $CXX --version 
-  - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS} -DCMAKE_CXX_FLAGS=$NO_CXX11_ALLOC" 
+  - configure_params="-DCMAKE_CXX_COMPILER=$(which $CXX) -DBII_BOOST_VERBOSE=${BII_BOOST_VERBOSE} -DBII_BOOST_GLOBAL_USE_STATIC_LIBS=${BII_BOOST_GLOBAL_USE_STATIC_LIBS} -DCMAKE_CXX_FLAGS=$NO_CXX11_ALLOC -DCMAKE_CXX_FLAGS=\"${CXX_FLAGS}\" -DCMAKE_EXE_LINKER_FLAGS=\"${CXX_LINKER_FLAGS}\""
 script:
   - bii init #Remember: bii/ folder ignored on git repo
   - bii find --update
