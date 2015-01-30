@@ -1,18 +1,18 @@
 language: cpp
 compiler:
-  #- gcc
+  - gcc
   - clang
 env:
   matrix:
     - LIBCXX=true BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
     - LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
-    #- LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
-    #- LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
+    - LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
+    - LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
 
     - LIBCXX=true BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
     - LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
-    #- LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
-    #- LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
+    - LIBCXX=false BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
+    - LIBCXX=false BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
   global:
     - GCC_VERSION="4.9"
     - BII_BOOST_VERBOSE="ON"
@@ -25,6 +25,17 @@ matrix:
     - compiler: gcc
       env: LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
     - compiler: gcc
+      env: LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
+
+  #
+  allow_failures:
+    - compiler: clang
+      env: LIBCXX=true BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
+    - compiler: clang
+      env: LIBCXX=true BUILD_TYPE=Debug BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
+    - compiler: clang
+      env: LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="ON"
+    - compiler: clang
       env: LIBCXX=true BUILD_TYPE=Release BII_BOOST_GLOBAL_USE_STATIC_LIBS="OFF"
 
 before_install:
@@ -47,7 +58,7 @@ before_install:
   - if [ "$LIBCXX" == "true" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
   - if [ "$LIBCXX" == "true" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
   - if [ "$LIBCXX" == "true" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/"; fi
-  - if [ "$LIBCXX" == "true" ]; then CXX_LINKER_FLAGS="${CXX_LINKER_FLAGS} -L/usr/lib/ -lc++"; fi
+  - if [ "$LIBCXX" == "true" ]; then CXX_LINKER_FLAGS="${CXX_LINKER_FLAGS} -stdlib=libc++ -L/usr/lib/ -lc++"; fi
   - if [ "$CXX" == "clang++" ]; then export NO_CXX11_ALLOC="-DBOOST_NO_CXX11_ALLOCATOR=1"; fi
 install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
