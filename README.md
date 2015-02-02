@@ -68,7 +68,6 @@ To use Boost in a block, just include `biicode/boost/setup.cmake` in the block `
 
 ``` cmake
 INIT_BIICODE_BLOCK()
-
 ADD_BIICODE_TARGETS()
 
 #Include biicode Boost setup
