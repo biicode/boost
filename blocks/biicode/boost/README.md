@@ -3,38 +3,6 @@ boost-biicode [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.sv
 
 Experimental support for the Boost libraries on biicode 2.0
 
-Testing with this repo
-----------------------
-
- 1. Clone this repo
- 2. Do `bii init` on it.
- 3. Run `bii cpp:build`
- 4. Go for churros
- 5. Come back and see if the blocks were built successfully
-
- ### Testing alternative tracks
-
- The repo includes three branches, `master`, `1.56.0`, `1.57.0`; containing the master `biicode/boost` track (Boost 1.57.0), `biicode/boost(1.56.0)` (Boost 1.56.0), and `biicode/boost(1.55.0)` (Boost 1.55.0).  
-
- Checkout the different branches to test each boost track (Repeat steps 2 - 5 above for each branch).
-
-Continuous integration
-----------------------
-
-Here at biicode [we love Travis CI](http://blog.travis-ci.com/2015-01-29-my-c-c-dev-environment-github-travisci-biicode/), I'm using that CI service to test all the `biicode/boost` tracks with 12 different build configurations per track (Check the builds).
-
- - **master (Boost 1.57.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode/branches)
- - **1.56.0 (Boost 1.56.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.56.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
- - **master (Boost 1.57.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.55.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
-
-
-Contents
---------
-
-This project contains a set of blocks to test different boost libraries. These are blocks of the form `examples/boost-[BOOST_LIB]` containing examples extracted from Boost docs or other web resources available, along with some other blocks using my biicode account to test complex use cases of Boost (Depending on multiple Boost-related blocks, checking global linking setup, etc).
-
-Each example depends on the `biicode/boost` block, a CMake-only block with a hook which configures the required version of Boost. 
-
 Running a Boost-related block, minimal example
 ----------------------------------------------
 
