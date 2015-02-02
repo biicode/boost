@@ -12,11 +12,11 @@ Testing with this repo
  4. Go for churros
  5. Come back and see if the blocks were built successfully
 
- ### Testing alternative tracks
+### Testing alternative tracks
 
- The repo includes three branches, `master`, `1.56.0`, `1.57.0`; containing the master `biicode/boost` track (Boost 1.57.0), `biicode/boost(1.56.0)` (Boost 1.56.0), and `biicode/boost(1.55.0)` (Boost 1.55.0).  
+The repo includes three branches, `master`, `1.56.0`, `1.57.0`; containing the master `biicode/boost` track (Boost 1.57.0), `biicode/boost(1.56.0)` (Boost 1.56.0), and `biicode/boost(1.55.0)` (Boost 1.55.0).  
 
- Checkout the different branches to test each boost track (Repeat steps 2 - 5 above for each branch).
+Checkout the different branches to test each boost track (Repeat steps 2 - 5 above for each branch).
 
 Continuous integration
 ----------------------
@@ -25,7 +25,7 @@ Here at biicode [we love Travis CI](http://blog.travis-ci.com/2015-01-29-my-c-c-
 
  - **master (Boost 1.57.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode/branches)
  - **1.56.0 (Boost 1.56.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.56.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
- - **master (Boost 1.57.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.55.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
+ - **1.55.0 (Boost 1.55.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.55.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
 
 
 Contents
@@ -92,7 +92,7 @@ It's designed with an interface very similar to the usual call to `find_package(
  - `COMPONENTS`: Boost components to find, separated with spaces.
  - `REQUIRED`: If specified, fail if one of more of that components is not found.
 
- *Note there's no version parameter. To set the required Boost version, go to the `biicode.conf` of your block and select the proper `biicode/boost` track.*
+*Note there's no version parameter. To set the required Boost version, go to the `biicode.conf` of your block and select the proper `biicode/boost` track.*
 
 `bii_find_boost()` will download and build the required Boost libraries if needed (Not set up previously). Then calls `find_package(Boost COMPONENTS ...)` after setup.
 
@@ -108,8 +108,8 @@ The scripts inside `biicode/booost` block set up a Boost installation in the bii
 `biicode/boost/setup.cmake` reads gets the configuration of variables to configure the Boost setup requested by the user:
 
 - `BII_BOOST_VERSION`: Specifies the required Boost version, using dot syntax. **Inferred automatically from block track**.
-- `BII_BOOST_TOOLSET`: Toolset which Boost libraries are compiled to. Inferred from `CMAKE_CXX_COMPILER` by default.
-- `BII_BOOST_BUILD_J`: Number of threads used for Boost compilation. 1 (no parallel build) by default.
+- `BII_BOOST_TOOLSET`: Toolset which Boost libraries are compiled to. **Inferred from `CMAKE_CXX_COMPILER` by default**.
+- `BII_BOOST_BUILD_J`: Number of threads used for Boost compilation. **1 (no parallel build) by default**.
 - `BII_BOOST_LIBS`: Set of Boost components to be built. For each component, all variants all built *Boost `b2` recognizes targets already built, so a component will be built only if it was not built with the current toolset before*. If `BII_BOOST_LIBS`  is not specified, no libraries are built. **Inferred from `bii_find_boost()` `COMPONENTS` parameter by default**.
 
 ### Extra variables
