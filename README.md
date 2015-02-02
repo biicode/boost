@@ -67,11 +67,12 @@ The idea is to hide all the complexity to the user. Using Boost was never this e
 To use Boost in a block, just include `biicode/boost/setup.cmake` in the block `CMakeLists.txt` and run `bii_find_boost()` function:
 
 ``` cmake
+INIT_BIICODE_BLOCK()
+
+ADD_BIICODE_TARGETS()
+
 #Include biicode Boost setup
 include(biicode/boost/setup)
-    
-BII_CONFIGURE_BLOCK()
-BII_BLOCK_TARGETS()
 
 set(Boost_USE_STATIC_LIBS OFF) #Link with dynamic version of Boost (Just an example, use whatever you need)
     
