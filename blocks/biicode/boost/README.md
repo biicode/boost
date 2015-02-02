@@ -1,4 +1,4 @@
-boost-biicode [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode) [![Build Status](https://webapi.biicode.com/v1/badges/biicode/biicode/boost/master)](https://www.biicode.com/biicode/boost) 
+boost-biicode [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.55.0)](https://travis-ci.org/Manu343726/boost-biicode) [![Build Status](https://webapi.biicode.com/v1/badges/biicode/biicode/boost/1.55.0)](https://www.biicode.com/biicode/boost) 
 =============
 
 Experimental support for the Boost libraries on biicode 2.0
