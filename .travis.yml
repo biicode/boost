@@ -42,9 +42,7 @@ env:
   global:
   - GCC_VERSION="4.9"
   - BII_BOOST_VERBOSE="ON"
-  - secure: Ca7VM89xTfyHcs7dKVcubc/4u3EIsTZLgZ/HPZgNZ6WrKUOHLlfLW3ccfsebWDYilk/eEH7Q3nKhnzKmAB8U2R5pRlQZEz0SnEl1mEx2b5ORRA3x+SAb+POpo9mIoQoOOvFb41B1X3v0r5mk64xarSFLe9UNDHTNjxkHfrReUjU=
-  - secure: CoTAA9NIGfknA8zOkNP70dlXucY/A9rMCi+/q4+y+cSUU1fAPl76pY+mmDVT+SxMfQxxqlgwwKLKNpbKFqtOYUI4bklFzwGfRWGM8qpKrRZI+OSyLR2Tan+eD/fFM8FdNdTDDnJ/iw1DY9B/QKDbv94PzF7is0Lb8cUJ9hCCYS4=
-  - secure: OCKYmrFDyKQLkvyxJ5QtSQpEtKdBG3EvXbr+SDgr7cbxILmgM0rXe1TW5AoYWbvNNLZdUNr8q1olgcFbEf4Q6x+T/XU5Yi5t+qEXuwo5W00/f8/ttW22sKhLTOtZ1zhEDp2JCzScS/ARgXNfPVVZJnU24KWp0ud378JVs0k9rlg=
+  - secure: "rVmIQvzgsDqQTNG4e5XqgzOjeQrGlyz8lwTOzO+1xpaJA8oTfnLutkRLSNiTiCIGV5EmHFNTd7RI99AeLMgDSWc16cKfEfJxkkNmdp8YSjfhfchrDoD8xVVSxJ0xLpAkHzpdi+3AAQlqqM4ywobKeyxitiGSq7J8/KdkbzRRan0="
 
 matrix:
   exclude:
@@ -116,7 +114,7 @@ install:
 
 script:
 - bii init
-- python generate.py '{"biicode": "${biicode_password}", "examples": "${examples_password}", "manu343726": "${manu343726_password}"}' $BII_BOOST_TRACK
+- python generate.py "${passwords}" $BII_BOOST_TRACK
 - bii find --update
 - bii cpp:configure $configure_params || bii cpp:configure $configure_params
 - bii cpp:build
