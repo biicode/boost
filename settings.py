@@ -2,13 +2,16 @@
 # Biicode Boost blocks templates settings for block generation.
 #
 
+import os, urllib, json, sys
+
 class BiiBoostCorruptSettingsError(Exception):
 	pass
 
 class BiiBoostSettings:
-	def __init__(self, packages, variables):
+	def __init__(self, packages, variables, passwords):
 		self.__packages = packages
 		self.__variables = variables
+		self.__passwords = passwords
 
 		self.__check()
 
@@ -24,19 +27,19 @@ class BiiBoostSettings:
 						if tag in line:
 							return
 
-				raise BiiBoostCorruptSettingsError("No '<" + variable + ">' tag found on " + file)
+				raise BiiBoostCorruptSettingsError("No '<" + variable + ">' tag found on " + block + "/" + file)
 			else:
 				raise BiiBoostCorruptSettingsError("No '" + file + "' file inside " + block + " block")
 		else:
 			raise BiiBoostCorruptSettingsError("No '" + block + "' block in blocks directory")
 
 	def __check(self):
-		for block, replaces in self.__packages.iteritems():
+		for block, (publish, replaces) in self.__packages.iteritems():
 			for file, variable in replaces:
 				if variable in self.__variables:
 					self.__checkEntry(block, file, variable)
 				else:
-					raise BiiBoostCorruptSettingsError("No variable corresponding to '<" + variable + ">' tag")
+					raise BiiBoostCorruptSettingsError("No variable corresponding to '<" + variable + ">' tag found in '" + block + "/" + file + "'")
 
 	def packages(self):
 		return self.__packages
@@ -44,23 +47,53 @@ class BiiBoostSettings:
 	def variables(self):
 		return self.__variables
 
-		
+	def passwords(self):
+		return self.__passwords
+
+def latest_block_version(block, track):
+	user = block.split("/")[0]
+	url = "https://webapi.biicode.com/v1/blocks/" + user + "/" + block + "/" + track
+
+	try:
+		data = json.loads(urllib.urlopen(url).read())
+		version = str(data["version"])
+	except ValueError:
+		version = "-1"
+
+	print "Found " + block + ":" + version
+
+	return version
+
 
 def settings():
-	variables = {"BIICODE_BOOST_VERSION" : "1.57.0",
-	             "BIICODE_BOOST_BLOCK"   : "biicode/boost(1.57.0)"}
+	track = sys.argv[2]
 
-	packages = { "biicode/boost"             : [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("CMakeLists.txt", "BIICODE_BOOST_VERSION")],
-			     "manu343726/math"           : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "david/boost_lib"           : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "examples/boost-coroutine"  : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "examples/boost-filesystem" : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "examples/boost-flyweight"  : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "examples/boost-multiindex" : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "examples/boost-phoenix"    : [("biicode.conf", "BIICODE_BOOST_BLOCK")],
-	             "examples/boost-signals"    : [("biicode.conf", "BIICODE_BOOST_BLOCK")] }
+	if track != "master":
+		boost_version = track
+	else:
+		boost_version = "1.57.0"
+
+	publish = (track == "master")
+
+	variables = {"BIICODE_BOOST_VERSION" : lambda block, block_track, file: boost_version,
+				 "WORKING_TRACK"         : lambda block, block_track, file: track,
+	             "BIICODE_BOOST_BLOCK"   : lambda block, block_track, file: "biicode/boost(" + track + ")",
+	             "LATEST_BLOCK_VERSION"  : lambda block, block_track, file: latest_block_version(block, block_track)}
+
+	packages = { "biicode/boost"             : (True,    [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("setup.cmake", "BIICODE_BOOST_VERSION")]),
+			     "manu343726/math"           : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "manu343726/boost-lib"      : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "manu343726/boost-main"     : (publish, [                                         ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "examples/boost-coroutine"  : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "examples/boost-filesystem" : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "examples/boost-flyweight"  : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "examples/boost-multiindex" : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "examples/boost-phoenix"    : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+	             "examples/boost-signals"    : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]) }
+
+	passwords = json.loads(sys.argv[1])
 	
-	return BiiBoostSettings(packages, variables)
+	return BiiBoostSettings(packages, variables, passwords)
 
 if __name__ == '__main__': 
     print(settings())
