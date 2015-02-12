@@ -2,7 +2,7 @@
 # Biicode Boost blocks templates settings for block generation.
 #
 
-import os, urllib, json, sys
+import os, urllib, json, sys, ast
 
 class BiiBoostCorruptSettingsError(Exception):
 	pass
@@ -76,12 +76,12 @@ def settings():
 	publish = (track == "master")
 
 	variables = {"BIICODE_BOOST_VERSION" : lambda block, block_track, file: boost_version,
-				 "WORKING_TRACK"         : lambda block, block_track, file: track,
+	       	     "WORKING_TRACK"         : lambda block, block_track, file: track,
 	             "BIICODE_BOOST_BLOCK"   : lambda block, block_track, file: "biicode/boost(" + track + ")",
 	             "LATEST_BLOCK_VERSION"  : lambda block, block_track, file: latest_block_version(block, block_track)}
 
 	packages = { "biicode/boost"             : (True,    [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("setup.cmake", "BIICODE_BOOST_VERSION")]),
-			     "manu343726/math"           : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
+		     "manu343726/math"           : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
 	             "manu343726/boost-lib"      : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
 	             "manu343726/boost-main"     : (publish, [                                         ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
 	             "examples/boost-coroutine"  : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
@@ -91,7 +91,7 @@ def settings():
 	             "examples/boost-phoenix"    : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
 	             "examples/boost-signals"    : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]) }
 
-	passwords = json.loads(sys.argv[1])
+	passwords = ast.literal_eval(sys.argv[1])
 	
 	return BiiBoostSettings(packages, variables, passwords)
 

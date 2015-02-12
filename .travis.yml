@@ -42,7 +42,7 @@ env:
   global:
   - GCC_VERSION="4.9"
   - BII_BOOST_VERBOSE="ON"
-  - secure: "rVmIQvzgsDqQTNG4e5XqgzOjeQrGlyz8lwTOzO+1xpaJA8oTfnLutkRLSNiTiCIGV5EmHFNTd7RI99AeLMgDSWc16cKfEfJxkkNmdp8YSjfhfchrDoD8xVVSxJ0xLpAkHzpdi+3AAQlqqM4ywobKeyxitiGSq7J8/KdkbzRRan0="
+  - secure: "YB2pZS2y8n+ro2W4wqJ70UvCNyTLV65lM+qttTAf4JrHIo2FMOc8gUy8THvPTleYgtVKGpd88DVGMbNy0uXuerEgl59QE/998GBAc5+u1Yp+TsPe0OhwfMkqRl62+WjXHtpK3TbE5MYwmJlHjMhkbZkvMU9IzIPWN/zxlegzBnE="
 
 matrix:
   exclude:
