@@ -1,5 +1,5 @@
 import settings
-import sys
+import sys, subprocess
 
 class generator:
 	""" Generates the Boost blocks (biicode/boost, examples, etc) from the Boost version settings and templates"""
@@ -27,20 +27,6 @@ class generator:
 
 		return template
 
-
-	def processFile(self,template_path,output_path):
-		"""Generates a PKGBUILD from the specified template file and the current settings"""
-
-		template_file = open(template_path, 'r')
-		pkgbuild_file = open(output_path, 'w')
-
-		template = template_file.read()
-		output   = self.replace(template)
-		pkgbuild_file.write(output)
-
-		template_file.close()
-		pkgbuild_file.close()
-
 	def execute(self):
 		from shutil import copytree, ignore_patterns
 
@@ -51,15 +37,18 @@ class generator:
 			copytree(os.path.join(self.templates_directory, block), os.path.join(self.blocks_directory, block), ignore_patterns(template_files))
 
 			for templateFile, outputFile in [(os.path.join(self.templates_directory, block, x[0]),
-			                                  os.path.join(self.blocks_directory, block, x[0])) in for x in entry
+			                                  os.path.join(self.blocks_directory, block, x[0])) in for x in entry:
 
-			ifile = open(templateFile, 'r')
-			ofile = open(outputFile, 'w')
+				ifile = open(templateFile, 'r')
+				ofile = open(outputFile, 'w')
 
-			ofile.write(self.replace(ifile.read()))
+				ofile.write(self.replace(ifile.read()))
 
-			ifile.close()
-			ofile.close()
+				ifile.close()
+				ofile.close()
+
+			subprocess.Popen(['bii', 'user', block.split('/')[0]], cwd=os.path.dirname(os.path.abspath(__file__))
+			subprocess.Popen(['bii', 'publish', block], cwd=os.path.dirname(os.path.abspath(__file__))
 
 
 def run():
