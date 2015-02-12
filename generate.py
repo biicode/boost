@@ -77,14 +77,11 @@ class generator:
 
 
 def run():
-    try:
-        #Ok Diego, here's your login
-        login = subprocess.Popen(['bii', 'user', "manu343726"], cwd=os.path.dirname(os.path.abspath(__file__)))
-        login.wait()
+    #Ok Diego, here's your login
+    login = subprocess.Popen(['bii', 'user', "manu343726"], cwd=os.path.dirname(os.path.abspath(__file__)))
+    login.wait()
 
-        generator().execute()
-    except Exception as e:
-        print "ERROR: ", str(e)
-
+    generator().execute()
+    
 if __name__ == '__main__': 
     run()
