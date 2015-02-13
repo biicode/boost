@@ -8,6 +8,12 @@ ADD_BIICODE_TARGETS()
 
 bii_find_boost()
 
+if(MSVC)
+    #This is needed due to Banditunit tests
+    target_compile_options(${BII_BLOCK_TARGET} INTERFACE /bigobj)
+endif()
+    
+
 # You can safely delete lines from here...
 
 ###############################################################################
