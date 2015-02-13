@@ -1,6 +1,6 @@
 language: cpp
 compiler:
-- gcc
+#- gcc
 - clang
 env:
   matrix:

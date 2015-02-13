@@ -289,6 +289,7 @@ function(__BII_BOOST_INSTALL)
 
     set(Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
     set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
+    set(Boost_COMPILER     ${Boost_COMPILER}     PARENT_SCOPE)
 endfunction()
 
 function(BII_SETUP_BOOST)
@@ -344,6 +345,7 @@ function(BII_SETUP_BOOST)
 
     set(Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
     set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
+    set(Boost_COMPILER     ${Boost_COMPILER}     PARENT_SCOPE)
 endfunction()
 
 function(BII_FIND_BOOST)
@@ -360,4 +362,5 @@ function(BII_FIND_BOOST)
     set(Boost_LIBRARIES    ${Boost_LIBRARIES}    PARENT_SCOPE)
     set(Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
     set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
+    set(Boost_COMPILER     ${Boost_COMPILER}     PARENT_SCOPE)
 endfunction()
