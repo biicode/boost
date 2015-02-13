@@ -69,3 +69,47 @@ function(BII_BOOST_COMPUTE_TOOLSET _ret)
 		set(${_ret} "${__toolset_name}"              PARENT_SCOPE)
 	endif()
 endfunction()
+
+function(BII_BOOST_SET_CLANG_COMPILER BII_BOOST_DIR BII_BOOST_VERBOSE RETURN)
+  # FindBoost auto-compute does not care about Clang?
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      if(NOT (CMAKE_SYSTEM_NAME MATCHES "Darwin"))    
+          COMPILER_VERSION(__clang_version)#In boost/install/utils.cmake
+
+          #Some regex kung-fu
+          string(REGEX REPLACE "([0-9])\\.([0-9])" "\\1\\2" __clang_version ${__clang_version})
+
+          set(Boost_COMPILER "-clang${__clang_version}")
+      else()
+          #On Darwin (OSX) the suffix is extracted from library binary names. That's why this setup is
+          #done after build
+
+          file(GLOB __clang_libs RELATIVE "${BII_BOOST_DIR}/stage/lib/" "${BII_BOOST_DIR}/stage/lib/*clang*")
+
+          if(__clang_libs)
+              list(GET __clang_libs 0 __clang_lib)
+
+              if(BII_BOOST_VERBOSE)
+                  message(STATUS ">>> Suffix source: ${__clang_lib}")
+              endif()
+
+              #More kung-fu
+              string(REGEX REPLACE ".*(-clang-darwin[0-9]+).*" "\\1" __suffix ${__clang_lib})
+
+              if(BII_BOOST_VERBOSE)
+                  message(STATUS ">>>> Suffix: ${__suffix}")
+              endif()
+
+              set(Boost_COMPILER ${__suffix})
+          else()
+              message(FATAL_ERROR "Unable to compute Boost compiler suffix from Clang libraries names")
+          endif()
+      endif()
+
+      if(BII_BOOST_VERBOSE)
+          message(STATUS ">>>> Setting Boost_COMPILER suffix manually for clang: ${Boost_COMPILER}")
+      endif()
+
+      set(${RETURN} ${Boost_COMPILER} PARENT_SCOPE)
+  endif()
+endfunction()

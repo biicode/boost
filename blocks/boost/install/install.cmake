@@ -3,7 +3,7 @@ include(CMakeParseArguments)
 
 set(SCOPE PARENT_SCOPE)
 
-function(BII_BOOST_PRINT_SETUP)
+function(__BII_BOOST_PRINT_SETUP)
     message(STATUS "Boost version: ${BII_BOOST_VERSION}")
     message(STATUS "Libraries: ${BII_BOOST_LIBS}")
     message(STATUS "Upstream URL: ${BII_BOOST_DOWNLOAD_URL}")
@@ -20,7 +20,7 @@ function(BII_BOOST_PRINT_SETUP)
     endif()
 endfunction()
 
-function(BII_BOOST_DOWNLOAD)
+function(__BII_BOOST_DOWNLOAD)
     if(NOT (EXISTS ${BII_BOOST_PACKAGE_PATH}))
         message(STATUS "Downloading Boost ${BII_BOOST_VERSION} from ${BII_BOOST_DOWNLOAD_URL}...") 
 
@@ -48,7 +48,7 @@ function(BII_BOOST_DOWNLOAD)
     endif()
 endfunction()
 
-function(BII_BOOST_BOOTSTRAP)
+function(__BII_BOOST_BOOTSTRAP)
     if((NOT (EXISTS ${__BII_BOOST_B2})) OR (${BII_BOOST_BOOTSTRAP_FORCE}))
         message(STATUS "Bootstrapping Boost ${BII_BOOST_VERSION}...")
 
@@ -58,13 +58,13 @@ function(BII_BOOST_BOOTSTRAP)
             message(FATAL_ERROR "Failed running ${__BII_BOOST_BOOTSTRAP_CALL}:\n${Output}\n${Error}\n")
         endif()
     else()
-        if(BII_BOOST_VERBOSE)
+        if(__BII_BOOST_VERBOSE)
             message(STATUS "Boost bootstrapping aborted! b2 file already exists. Set BII_BOOST_BOOTSTRAP_FORCE to override")
         endif()
     endif()
 endfunction()
 
-function(BII_BOOST_BUILD)
+function(__BII_BOOST_BUILD)
     if(BII_BOOST_LIBS)
         message(STATUS "Building Boost ${BII_BOOST_VERSION} components with toolset ${BII_BOOST_TOOLSET}...")
     endif()
@@ -94,7 +94,7 @@ function(BII_BOOST_BUILD)
     endforeach()
 endfunction()
 
-function(BII_BOOST_INSTALL)
+function(__BII_BOOST_INSTALL)
     message(STATUS "Setting up biicode Boost configuration...")
 
 #########################################################################################################
@@ -228,26 +228,26 @@ function(BII_BOOST_INSTALL)
     endif()
 
     if(BII_BOOST_VERBOSE)
-        BII_BOOST_PRINT_SETUP()
+        __BII_BOOST_PRINT_SETUP()
     endif()
 
 #########################################################################################################
 #                                       DOWNLOAD                                                        #
 #########################################################################################################
 
-    BII_BOOST_DOWNLOAD()
+    __BII_BOOST_DOWNLOAD()
 
 #########################################################################################################
 #                                       BOOTSTRAP                                                       #
 #########################################################################################################
 
-    BII_BOOST_BOOTSTRAP()
+    __BII_BOOST_BOOTSTRAP()
 
 #########################################################################################################
 #                                         BUILD                                                         #
 #########################################################################################################
 
-    BII_BOOST_BUILD()
+    __BII_BOOST_BUILD()
     
 #########################################################################################################
 #                                     FINAL SETTINGS                                                    #
@@ -256,43 +256,7 @@ function(BII_BOOST_INSTALL)
     if(BII_BOOST_LIBS)
         # FindBoost auto-compute does not care about Clang?
         if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-            if(NOT (CMAKE_SYSTEM_NAME MATCHES "Darwin"))    
-                COMPILER_VERSION(__clang_version)#In boost/install/utils.cmake
-
-                #Some regex kung-fu
-                string(REGEX REPLACE "([0-9])\\.([0-9])" "\\1\\2" __clang_version ${__clang_version})
-
-                set(Boost_COMPILER "-clang${__clang_version}" CACHE INTERNAL "Boost library suffix")
-            else()
-                #On Darwin (OSX) the suffix is extracted from library binary names. That's why this setup is
-                #done after build
-
-
-                file(GLOB __clang_libs RELATIVE "${BII_BOOST_DIR}/stage/lib/" "${BII_BOOST_DIR}/stage/lib/*clang*")
-
-                if(__clang_libs)
-                    list(GET __clang_libs 0 __clang_lib)
-
-                    if(BII_BOOST_VERBOSE)
-                        message(STATUS ">>> Suffix source: ${__clang_lib}")
-                    endif()
-
-                    #More kung-fu
-                    string(REGEX REPLACE ".*(-clang-darwin[0-9]+).*" "\\1" __suffix ${__clang_lib})
-
-                    if(BII_BOOST_VERBOSE)
-                        message(STATUS ">>>> Suffix: ${__suffix}")
-                    endif()
-
-                    set(Boost_COMPILER ${__suffix} ${SCOPE})
-                else()
-                    message(FATAL_ERROR "Unable to compute Boost compiler suffix from Clang libraries names")
-                endif()
-            endif()
-
-            if(BII_BOOST_VERBOSE)
-                message(STATUS ">>>> Setting Boost_COMPILER suffix manually for clang: ${Boost_COMPILER}")
-            endif()
+            BII_BOOST_SET_CLANG_COMPILER("${BII_BOOST_DIR}" "${BII_BOOST_VERBOSE}" Boost_COMPILER)
         endif()
     endif()
 
@@ -323,19 +287,15 @@ function(BII_BOOST_INSTALL)
     set(BOOST_INCLUDEDIR "${BOOST_INCLUDEDIR}" PARENT_SCOPE)
     set(BOOST_LIBRARYDIR "${BOOST_LIBRARYDIR}" PARENT_SCOPE)
 
-    set(Boost_FOUND ${Boost_FOUND} PARENT_SCOPE)
+    set(Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
     set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
 endfunction()
 
-function(BII_INSTALL_BOOST)
+function(BII_SETUP_BOOST)
     set(options REQUIRED STATIC DYNAMIC)
-    set(oneValueArgs VERSION TOOLSET)
+    set(oneValueArgs TOOLSET)
     set(multiValueArgs COMPONENTS)
     cmake_parse_arguments(BII_FIND_BOOST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-    if(BII_FIND_BOOST_VERSION)
-        set(BII_BOOST_VERSION ${BII_FIND_BOOST_VERSION})
-    endif()
 
     if(BII_FIND_BOOST_TOOLSET)
         set(BII_BOOST_TOOLSET ${BII_FIND_BOOST_TOOLSET})
@@ -371,7 +331,7 @@ function(BII_INSTALL_BOOST)
         set(Boost_USE_STATIC_LIBS ${BII_BOOST_GLOBAL_USE_STATIC_LIBS} ${SCOPE})
     endif()
 
-    BII_BOOST_INSTALL()
+    __BII_BOOST_INSTALL()
 
     set(BII_FIND_BOOST_COMPONENTS ${BII_FIND_BOOST_COMPONENTS} PARENT_SCOPE)
     set(REQUIRED_FLAG             ${REQUIRED_FLAG}             PARENT_SCOPE)
@@ -382,12 +342,12 @@ function(BII_INSTALL_BOOST)
     set(BOOST_INCLUDEDIR "${BOOST_INCLUDEDIR}" PARENT_SCOPE)
     set(BOOST_LIBRARYDIR "${BOOST_LIBRARYDIR}" PARENT_SCOPE)
 
-    set(Boost_FOUND ${Boost_FOUND} PARENT_SCOPE)
+    set(Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
     set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
 endfunction()
 
 function(BII_FIND_BOOST)
-    BII_INSTALL_BOOST(${ARGN})
+    BII_SETUP_BOOST(${ARGN})
 
     if(BII_BOOST_VERBOSE)
         message(STATUS "BOOST_ROOT       ${BOOST_ROOT}")
@@ -397,7 +357,7 @@ function(BII_FIND_BOOST)
 
     find_package(Boost COMPONENTS ${BII_FIND_BOOST_COMPONENTS} ${REQUIRED_FLAG})
 
-    set(Boost_LIBRARIES ${Boost_LIBRARIES} PARENT_SCOPE)
-    set(Boost_FOUND ${Boost_FOUND} PARENT_SCOPE)
+    set(Boost_LIBRARIES    ${Boost_LIBRARIES}    PARENT_SCOPE)
+    set(Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
     set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
 endfunction()
