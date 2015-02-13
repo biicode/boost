@@ -91,7 +91,7 @@ def settings():
 	             "examples/boost-phoenix"    : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]),
 	             "examples/boost-signals"    : (publish, [("biicode.conf", "BIICODE_BOOST_BLOCK"), ("biicode.conf", "LATEST_BLOCK_VERSION"), ("biicode.conf", "BIICODE_BOOST_VERSION")]) }
 
-	passwords = ast.literal_eval(sys.argv[1])
+        passwords = ast.literal_eval(sys.argv[1].replace('->', ':'))
 	
 	return BiiBoostSettings(packages, variables, passwords)
 
