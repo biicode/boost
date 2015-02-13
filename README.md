@@ -3,35 +3,10 @@ boost-biicode [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.sv
 
 Experimental support for the Boost libraries on biicode 2.0
 
-Testing with this repo
-----------------------
-
- 1. Clone this repo
- 2. Do `bii init` on it.
- 3. Run `bii cpp:build`
- 4. Go for churros
- 5. Come back and see if the blocks were built successfully
-
-### Testing alternative tracks
-
-The repo includes three branches, `master`, `1.56.0`, `1.57.0`; containing the master `biicode/boost` track (Boost 1.57.0), `biicode/boost(1.56.0)` (Boost 1.56.0), and `biicode/boost(1.55.0)` (Boost 1.55.0).  
-
-Checkout the different branches to test each boost track (Repeat steps 2 - 5 above for each branch).
-
-Continuous integration
-----------------------
-
-Here at biicode [we love Travis CI](http://blog.travis-ci.com/2015-01-29-my-c-c-dev-environment-github-travisci-biicode/), I'm using that CI service to test all the `biicode/boost` tracks with 12 different build configurations per track (Check the builds).
-
- - **master (Boost 1.57.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode/branches)
- - **1.56.0 (Boost 1.56.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.56.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
- - **1.55.0 (Boost 1.55.0)**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=1.55.0)](https://travis-ci.org/Manu343726/boost-biicode/branches)
-
-
 Contents
 --------
 
-This project contains a set of blocks to test different boost libraries. These are blocks of the form `examples/boost-[BOOST_LIB]` containing examples extracted from Boost docs or other web resources available, along with some other blocks using my biicode account to test complex use cases of Boost (Depending on multiple Boost-related blocks, checking global linking setup, etc).
+This project contains a set of blocks to test different boost libraries. These are blocks of the form `examples/boost-[BOOST_LIB]` containing examples extracted from Boost docs or other web resources available, along with some other blocks using my biicode account to test more use cases of Boost (Depending on multiple Boost-related blocks, checking global linking setup, etc).
 
 Each example depends on the `biicode/boost` block, a CMake-only block with a hook which configures the required version of Boost. 
 
@@ -56,7 +31,7 @@ The idea is to hide all the complexity to the user. Using Boost was never this e
       -- Bootstrapping Boost...
       -- Building Boost 1.57.0 with toolset msvc-12.0...
       -- Building lib library...
-      ... (Go for a coffee) ...
+      ... (Go for churros) ...
       -- BOOST_ROOT: /home/manu343726/.biicode/boost/1.57.0
       -- BOOST_INCLUDEDIR: /home/manu343726/.biicode/boost/1.57.0
       -- BOOST_LIBRARYDIR: /home/manu343726/.biicode/boost/1.57.0/stage/lib
@@ -77,6 +52,8 @@ set(Boost_USE_STATIC_LIBS OFF) #Link with dynamic version of Boost (Just an exam
     
 #Use `bii_find_boost()`, our wrapper of `find_package(Boost)`:
 bii_find_boost(COMPONENTS boost_lib another_boost_lib REQUIRED)
+
+target_include_directories(${BII_BLOCK_TARGET} INTERFACE ${Boost_INCLUDE_DIRS})
 target_link_libraries(${BII_BLOCK_TARGET} INTERFACE ${Boost_LIBRARIES})
 ```
 
@@ -90,13 +67,135 @@ It's designed with an interface very similar to the usual call to `find_package(
     bii_find_boost([COMPONENTS components...] [REQUIRED])
 
  - `COMPONENTS`: Boost components to find, separated with spaces.
- - `REQUIRED`: If specified, fail if one of more of that components is not found.
+ - `REQUIRED`: If specified, fail if one or more of that components is not found.
 
 *Note there's no version parameter. To set the required Boost version, go to the `biicode.conf` of your block and select the proper `biicode/boost` track.*
 
 `bii_find_boost()` will download and build the required Boost libraries if needed (Not set up previously). Then calls `find_package(Boost COMPONENTS ...)` after setup.
 
 Note even if the whole Boost distribution will be downloaded if it's not currently available in the biicode environment, `bii_find_boost()` will build only the Boost components passed, and only if those were not built previously with the current toolset. That means header only Boost libraries, which are configured via a simple call like `bii_find_boost()`, do not build any component, but only download and set up the Boost distro inside the biicode environment.
+
+Testing with this repo
+----------------------
+
+ 1. Clone this repo
+ 2. Do `bii init` on it.
+ 3. Run `generate.py` (See "*Block generation*" bellow)
+ 3. Run `bii cpp:build`
+ 4. Go for churros
+ 5. Come back and see if the blocks were built successfully
+
+Block generation
+----------------
+
+This repo maintains the biicode Boost blocks and some example blocks as templates inside the `blocktemplates/` folder. Then a `generate.py` script takes the configuration written on `settings.py` generating the final blocks located at `blocks/`.
+
+### Templates
+
+The templates are just usual files with `<VARIABLE>` tags on it's content. `generate.py` takes the blocks and variables specified in `settings.py` substituting that tags with the variables value.
+
+Take for example the `biicode.conf` of `biicode/boost` template:
+
+```
+[parent]
+  <BIICODE_BOOST_BLOCK>:<LATEST_BLOCK_VERSION>
+```
+
+after block generation, that entry will be expanded to something like:
+
+```
+[parent]
+  biicode/boost(1.57.0):4
+```
+
+### `settings.py`
+
+There is a `settings()` function supposed to return a `BiiBoostSettings` instance. `BiiBoostSettings` constructor takes three parameters:
+
+ - **varaibles**: Dictionary `variable -> value`. Note variable values are not strings directly but functions that return the final value. This allows some template-dependent customization of these values.  
+   The signature of that value functions is: `value(block, track, file)`, where `block` is the block name. `track`is the block track, and `file` is the file where the variable will be applied.
+
+ - **blocks**: A dictionary `block -> block settings` with the publish setup and templates specifications:
+
+    ``` python
+    block : ("publish tag", [template_specification, ...])
+    ```
+   
+   Where `template_specification` is a tuple taking a block file name and an
+   array with the variables applied there:
+
+    ``` python
+    ("filename (relative to block)", ["variable", ...])
+    ```
+
+   To not publicate the generated block automatically, set the publish tag to "disabled".
+
+ - **passwords**: A simple dictionary `biicode account -> password` with the biicode credentials of the blocks that will be published by the script. Passed from the CLI by default. **PLEASE ALWAYS ENCRYPT THE PASSWORDS!!!** See `.travis.yml` for an example.
+
+
+*I know, the settings are a bit cumbersome to write and read. I will be using some form of YAML in the future.*
+
+### Generation example:
+
+`biicode/boost` `biicode.conf` file:
+
+```
+[parent]
+  biicode/boost(<TRACK>): <LATEST_BLOCK_VERSION>
+```
+
+`biicode/boost/setup.cmake`:
+
+``` cmake
+include(boost/install/install)
+
+set(BII_BOOST_GLOBAL_OVERRIDE_VERSION <BOOST_VERSION>)
+```
+
+`settings.py`:
+
+``` python
+def settings():
+    track = sys.argv[2]
+    boost_version = track if track != "master" else "1.57.0"
+    version = "STABLE"
+
+    variables = {"BOOST_VERSION":
+                 lambda block, block_track, file: boost_version,
+                 "TRACK":
+                 lambda block, block_track, file: track,
+                 "LATEST_BLOCK_VERSION":
+                 lambda block, block_track, file: latest_block_version(block, block_track)}
+
+    packages = {"biicode/boost": (version, [("biicode.conf", ["TRACK", "LATEST_BLOCK_VERSION"]), ("setup.cmake", ["BOOST_VERSION"])])}
+
+    passwords = ast.literal_eval(sys.argv[1].replace('->', ':'))
+
+    return BiiBoostSettings(packages, variables, passwords)
+```
+
+`generate.py` call:
+
+``` shell
+$ python generate.py "{'biicode': 'what's my password?'}" 1.57.0
+```
+
+This will generate the `biicode/boost(1.57.0)` block and publish it to biicode cloud automatically.
+
+Continuous integration
+----------------------
+
+Here at biicode [we love Travis CI](http://blog.travis-ci.com/2015-01-29-my-c-c-dev-environment-github-travisci-biicode/), I'm using that CI service to test all the `biicode/boost` tracks with 48 different build jobs.
+
+The build matrix includes:
+
+ - **`biicode/boost` track**: `master`, `1.57.0`, `1.56.0`, `1.55.0`. Master is the default track, with the latest Boost version available. Currently contains Boost 1.57.0.
+ - **C++ Compiler**: GCC 4.9.1 and Clang 3.4.
+ - **Build type**: Release or Debug build.
+ - **Boost linking**: Static or dynamic linking to Boost.
+ - **LLVM libc++**: Build with LLVM libc++ or GNU stdlibc++. *Of course GCC builds are done with stdlibc++ only*.
+
+ **Current status**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode)
 
 Internal setup
 --------------

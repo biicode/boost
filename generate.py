@@ -1,8 +1,12 @@
 import settings
-import sys, subprocess, os
+import sys
+import subprocess
+import os
+
 
 class generator:
-    """ Generates the Boost blocks (biicode/boost, examples, etc) from the Boost version settings and templates"""
+    """ Generates the Boost blocks (biicode/boost, examples, etc) from the
+        Boost version settings and templates"""
 
     def __init__(self):
         __settings = settings.settings()
@@ -14,26 +18,26 @@ class generator:
         self.blocks_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blocks")
         self.templates_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blocktemplates")
 
-
-    def settingToTag(self,setting):
+    def setting_to_tag(self, setting):
         """Returns the file template tag corresponding to a specific setting"""
 
-        return '<' + setting.upper() + '>'
+        return "<{0}>".format(setting.upper())
 
-    def replace(self,template, block, track, file):
+    def replace(self, template, block, track, file):
         """Replaces the tags on the file template with the settings"""
 
         for variable, value in self.variables.iteritems():
-            if self.settingToTag(variable) in template:
-                template = template.replace( self.settingToTag(variable) , value(block, track, file) )
+            if self.setting_to_tag(variable) in template:
+                template = template.replace(self.setting_to_tag(variable),
+                                            value(block, track, file))
 
         return template
 
-    def boostVersion(self):
-        return self.variables["BIICODE_BOOST_VERSION"](None,None,None)
+    def boost_version(self):
+        return self.variables["BIICODE_BOOST_VERSION"](None, None, None)
 
-    def workingTrack(self):
-        return self.variables["WORKING_TRACK"](None,None,None)
+    def working_track(self):
+        return self.variables["WORKING_TRACK"](None, None, None)
 
     def execute(self):
         from shutil import copytree, rmtree, ignore_patterns
@@ -47,7 +51,9 @@ class generator:
             #Copy block contents except templates to blocks/block
 
             rmtree(os.path.join(self.blocks_directory, block), ignore_errors=True)
-            copytree(os.path.join(self.templates_directory, block), os.path.join(self.blocks_directory, block), ignore_patterns(template_files))
+            copytree(os.path.join(self.templates_directory, block),
+                     os.path.join(self.blocks_directory, block),
+                     ignore_patterns(template_files))
 
             for template, _ in entry:
                 print " - " + template
@@ -55,13 +61,16 @@ class generator:
                 ifile = open(os.path.join(self.templates_directory, block, template), 'r')
                 ofile = open(os.path.join(self.blocks_directory, block, template), 'w')
 
-                ofile.write(self.replace(ifile.read(), block, self.workingTrack(), template))
+                ofile.write(self.replace(ifile.read(),
+                                         block,
+                                         self.working_track(),
+                                         template))
 
                 ifile.close()
                 ofile.close()
 
-            if publish_block:
-                print "Publishing '" + block + "'"
+            if publish_block != "disabled":
+                print "Publishing '{0}({1})'".format(block, self.working_track())
 
                 user = block.split('/')[0]
 
@@ -72,7 +81,7 @@ class generator:
                 if not user in out:
                     raise RuntimeError("Failed logging in as '" + user + "'. bii user output: \"" + out + "\"")
 
-                publish = subprocess.Popen(['bii', 'publish', block], cwd=self.projectDir)
+                publish = subprocess.Popen(['bii', 'publish', block, '--tag', publish_block], cwd=self.projectDir)
                 publish.wait()
 
 
@@ -82,6 +91,6 @@ def run():
     login.wait()
 
     generator().execute()
-    
-if __name__ == '__main__': 
+
+if __name__ == '__main__':
     run()
