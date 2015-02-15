@@ -119,5 +119,5 @@ script:
 - bii init
 - python generate.py "{'biicode' -> '${biicode_password}', 'examples' -> '${examples_password}', 'manu343726' -> '${manu343726_password}'}" $BII_BOOST_TRACK
 - bii find --update
-- bii cpp:configure $configure_params || bii cpp:configure $configure_params
+- travis_wait bii cpp:configure $configure_params || travis_wait bii cpp:configure $configure_params
 - bii cpp:build
