@@ -1,4 +1,5 @@
 include(boost/install/utils)
+include(toeb/cmakepp/cmakepp)
 include(CMakeParseArguments)
 
 set(SCOPE PARENT_SCOPE)
@@ -70,16 +71,35 @@ function(__BII_BOOST_BUILD)
     endif()
 
     foreach(lib ${BII_BOOST_LIBS})
-        message(STATUS "Building ${lib} library...")
+        message(STATUS "Starting ${lib} library build job...")
 
-        set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
-        
-        execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
-                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
-        if(NOT Result EQUAL 0)
-            message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
-        endif()
+        set(build_script "
+            set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
+            
+            execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
+                            RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+            if(NOT Result EQUAL 0)
+                message(FATAL_ERROR \"Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n\")
+            endif()
+        ")
 
+        process_start_script("${build_script}")
+        ans(handle)
+        list(APPEND BUILD_JOBS ${handle})
+    endforeach()
+
+    if(BUILD_JOBS)
+        process_wait_all(${BUILD_JOBS})
+
+        foreach(handle ${BUILD_JOBS})
+            process_stdout(${handle})
+            ans(output)
+
+            message(${output})
+        endforeach()
+    endif()
+
+    if(BII_BOOST_LIBS)
         if((NOT (Boost_USE_STATIC_LIBS)) AND (WIN32 OR (CMAKE_SYSTEM_NAME MATCHES "Darwin")))
             file(GLOB __dlls "${BII_BOOST_DIR}/stage/lib/*${__DYNLIB_EXTENSION}")
 
@@ -91,7 +111,7 @@ function(__BII_BOOST_BUILD)
                 file(COPY ${dll} DESTINATION ${CMAKE_SOURCE_DIR}/../bin/)
             endforeach()
         endif()
-    endforeach()
+    endif()
 endfunction()
 
 function(__BII_BOOST_INSTALL)
