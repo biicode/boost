@@ -81,7 +81,7 @@ def latest_block_version(block, track):
 def settings():
     track = sys.argv[2]
     boost_version = track if track != "master" else "1.57.0"
-    version = "STABLE"
+    version = "disabled"
     publish = version if track == "master" else "disabled"
 
     variables = {"BIICODE_BOOST_VERSION":

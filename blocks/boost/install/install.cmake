@@ -74,12 +74,18 @@ function(__BII_BOOST_BUILD)
         message(STATUS "Starting ${lib} library build job...")
 
         set(build_script "
+            message(STATUS \"Building ${lib} library...\")
+
             set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
             
-            execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
+            execute_process(COMMAND \${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
                             RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+
+            message(STATUS \"${lib} build finished\")
             if(NOT Result EQUAL 0)
-                message(FATAL_ERROR \"Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n\")
+                message(FATAL_ERROR \"Failed running \${__BII_BOOST_B2_CALL}:\n\${Output}\n\${Error}\n\")
+            else()
+                message(\${Output})
             endif()
         ")
 
