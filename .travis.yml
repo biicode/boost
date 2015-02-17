@@ -117,7 +117,8 @@ install:
 
 script:
 - bii init
-- python generate.py "{'biicode' -> '${biicode_password}', 'examples' -> '${examples_password}', 'manu343726' -> '${manu343726_password}'}" $BII_BOOST_TRACK
+- if [ "$BII_BOOST_TRACK" == "master"]; then PUBLISH_EXAMPLES="--publish-examples"; fi
+- python generate.py $BII_BOOST_TRACK --passwords "{'biicode' -> '${biicode_password}', 'examples' -> '${examples_password}', 'manu343726' -> '${manu343726_password}'}" $PUBLISH_EXAMPLES --tag STABLE
 - bii find --update
 - travis_wait bii cpp:configure $configure_params || travis_wait bii cpp:configure $configure_params
 - bii cpp:build
