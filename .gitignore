@@ -1,6 +1,9 @@
 /bii/
-**/cmake/
-**/build/
-**/bin/
-**/deps/
+/cmake/
+/build/
+/bin/
+/deps/
+/blocks/manu343726/
+/blocks/examples/
+/blocks/biicode/
 settings.pyc
