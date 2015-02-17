@@ -80,6 +80,7 @@ def latest_block_version(block, track):
 
 def settings():
     track = sys.argv[2]
+    ci = sys.argv[3] == "ci"
     boost_version = track if track != "master" else "1.57.0"
     version = "STABLE"
     publish = version if track == "master" else "disabled"
@@ -98,12 +99,17 @@ def settings():
                 "manu343726/math"           : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "manu343726/boost-lib"      : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "manu343726/boost-main"     : (publish, [("biicode.conf", ["LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
+                "examples/boost-log"        : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "examples/boost-coroutine"  : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "examples/boost-filesystem" : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "examples/boost-flyweight"  : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "examples/boost-multiindex" : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "examples/boost-phoenix"    : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
                 "examples/boost-signals"    : (publish, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])])}
+
+    #Boost.Log takes so much time to compile, leads to timeouts on Travis CI
+    if ci: del packages['examples/boost-log']
+    #It was tested on Windows and linux, works 'ok' (Be careful with linking settings)
 
     passwords = ast.literal_eval(sys.argv[1].replace('->', ':'))
 
