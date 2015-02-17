@@ -3,6 +3,6 @@
 **/build/
 **/bin/
 **/deps/
-**/blocks/manu343726/
-**/blocks/examples/
+/blocks/manu343726/
+/blocks/examples/
 settings.pyc
