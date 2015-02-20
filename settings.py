@@ -96,6 +96,8 @@ def settings():
                         action="store_true", dest="publish_examples")
     parser.add_argument("--tag", help="biicode version tag which blocks will be published",
                         default="DEV")
+    parser.add_argument("--exclude", help="Exclude explcitly blocks from generation. Pass block names separated with spaces",
+                        default="")
 
     args = parser.parse_args()
 
@@ -129,6 +131,10 @@ def settings():
     #Boost.Log takes so much time to compile, leads to timeouts on Travis CI
     #It was tested on Windows and linux, works 'ok' (Be careful with linking settings)
     if args.ci: del packages['examples/boost-log']  
+
+    if args.exclude:
+        for block in args.exclude.split(' '):
+            del packages[block]
     
 
     return BiiBoostSettings(packages, variables, passwords)
