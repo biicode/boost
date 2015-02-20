@@ -85,6 +85,17 @@ Testing with this repo
  4. Go for churros
  5. Come back and see if the blocks were built successfully
 
+ Contributing
+ ------------
+
+ Please never forget to update the docs here at this readme file, the readme file of the `biicode/boost` block (Edit the one from the template of course), and the biicode docs [here](https://github.com/biicode/docs/blob/master/c%2B%2B/examples/boost.rst). 
+
+ Note the block which really does the work is `boost/install`, `biicode/boost` just *"inherits"* from it. All the scripts are located in that block, which is not part of block generation and is always located at `blocks/` directory of this project.
+
+The examples are always of the form `examples/boost-[LIBRARY]` and you are not allowed to publish changes to the biicode cloud (Actually, you don't have the passwords, only the biicode team).
+The idea is to test all changes locally using this project, send us your changes via git pull-request/whatever, and then we will update the blocks on the cloud. This policy is just to minimize possible broken publications, 
+remember there are devs relying on the blocks on the cloud.
+
 Block generation
 ----------------
 
@@ -135,6 +146,20 @@ There is a `settings()` function supposed to return a `BiiBoostSettings` instanc
 
 *I know, the settings are a bit cumbersome to write and read. I will be using some form of YAML in the future.*
 
+Currently the `settings()` function parses arguments from command line using Python's `argsparse`. So the call to `generate.py` should be:
+
+```
+generate.py track [--no-publish] [--publish-examples] [--tag tag] [--ci-build] [--passwords passwords] [--exclude "blocks"]
+```
+
+ - `track`: Block tracks. `master`, `1.57.0`, `1.56.0`, `1.55.0`.
+ - `--no-publish`: Disables publication of all blocks.
+ - `--publish-examples`: Enables examples publication.
+ - `--tag tag`: Tag to publish the blocks with.
+ - `--ci-build`: Specifies if the script is being run as part of a continuous integration build.
+ - `--passwords`: Python map with the biicode credentials needed.
+ - `--exclude "blocks"`: Excludes the specified blocks from generation, separated with spaces.
+
 ### Generation example:
 
 `biicode/boost` `biicode.conf` file:
@@ -156,20 +181,20 @@ set(BII_BOOST_GLOBAL_OVERRIDE_VERSION <BOOST_VERSION>)
 
 ``` python
 def settings():
-    track = sys.argv[2]
-    boost_version = track if track != "master" else "1.57.0"
-    version = "STABLE"
+    # cli args parsing omitted...
+
+    boost_version = args.track if args.track != "master" else "1.57.0"
 
     variables = {"BOOST_VERSION":
                  lambda block, block_track, file: boost_version,
                  "TRACK":
-                 lambda block, block_track, file: track,
+                 lambda block, block_track, file: args.track,
                  "LATEST_BLOCK_VERSION":
                  lambda block, block_track, file: latest_block_version(block, block_track)}
 
     packages = {"biicode/boost": (version, [("biicode.conf", ["TRACK", "LATEST_BLOCK_VERSION"]), ("setup.cmake", ["BOOST_VERSION"])])}
 
-    passwords = ast.literal_eval(sys.argv[1].replace('->', ':'))
+    passwords = ast.literal_eval(args.passwords.replace('->', ':'))
 
     return BiiBoostSettings(packages, variables, passwords)
 ```
@@ -177,7 +202,7 @@ def settings():
 `generate.py` call:
 
 ``` shell
-$ python generate.py "{'biicode': 'what's my password?'}" 1.57.0
+$ python generate.py 1.57.0 --publish-examples --ci-build --passwords "{'biicode': 'what's my password?'}"
 ```
 
 This will generate the `biicode/boost(1.57.0)` block and publish it to biicode cloud automatically.
