@@ -85,12 +85,12 @@ Testing with this repo
  4. Go for churros
  5. Come back and see if the blocks were built successfully
 
- Contributing
- ------------
+Contributing
+------------
 
- Please never forget to update the docs here at this readme file, the readme file of the `biicode/boost` block (Edit the one from the template of course), and the biicode docs [here](https://github.com/biicode/docs/blob/master/c%2B%2B/examples/boost.rst). 
+Please never forget to update the docs here at this readme file, the readme file of the `biicode/boost` block (Edit the one from the template of course), and the biicode docs [here](https://github.com/biicode/docs/blob/master/c%2B%2B/examples/boost.rst). 
 
- Note the block which really does the work is `boost/install`, `biicode/boost` just *"inherits"* from it. All the scripts are located in that block, which is not part of block generation and is always located at `blocks/` directory of this project.
+Note the block which really does the work is `boost/install`, `biicode/boost` just *"inherits"* from it. All the scripts are located in that block, which is not part of block generation and is always located at `blocks/` directory of this project.
 
 The examples are always of the form `examples/boost-[LIBRARY]` and you are not allowed to publish changes to the biicode cloud (Actually, you don't have the passwords, only the biicode team).
 The idea is to test all changes locally using this project, send us your changes via git pull-request/whatever, and then we will update the blocks on the cloud. This policy is just to minimize possible broken publications, 
