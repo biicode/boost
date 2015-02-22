@@ -1,0 +1,66 @@
+function(STRING_AT STR INDEX RESULT)
+	string(SUBSTRING ${STR} ${INDEX} 1 CHAR)
+	set(${RESULT} ${CHAR} PARENT_SCOPE)
+endfunction()
+
+function(__snake_simple SYMBOL HEAD TAIL WINDOW RESULT)
+	foreach(i RANGE 0 ${WINDOW})
+		if(((i GREATER TAIL) OR (i EQUAL TAIL)) AND ((i LESS HEAD) OR (i EQUAL HEAD)))
+			set(SNAKE "${SNAKE}${SYMBOL}")
+		else()
+			set(SNAKE "${SNAKE} ")
+		endif()
+	endforeach()
+
+	set(${RESULT} ${SNAKE} PARENT_SCOPE)
+endfunction()
+
+
+function(__snake_tail_positive SYMBOL HEAD TAIL WINDOW RESULT)
+	foreach(i RANGE 0 ${WINDOW})
+		if(((i GREATER TAIL) OR (i EQUAL TAIL)) AND ((i LESS HEAD) OR (i EQUAL HEAD)))
+			math(EXPR index "${i} - ${tail}")
+			string_at(${SYMBOL} ${index} CHAR)
+			set(SNAKE "${SNAKE}${CHAR}")
+		else()
+			set(SNAKE "${SNAKE} ")
+		endif()
+
+		set(${RESULT} ${SNAKE} PARENT_SCOPE)
+	endforeach()
+endfunction()
+
+function(__snake_tail_negative SYMBOL HEAD TAIL WINDOW RESULT)
+	string(SUBSTRING ${tail} 1 -1 abs_tail)
+
+	foreach(i RANGE 0 ${WINDOW})
+		if(((i GREATER TAIL) OR (i EQUAL TAIL)) AND ((i LESS HEAD) OR (i EQUAL HEAD)))
+			math(EXPR index "${i} + ${abs_tail}")
+			string_at(${SYMBOL} ${index} CHAR)
+			set(SNAKE "${SNAKE}${CHAR}")
+		else()
+			set(SNAKE "${SNAKE} ")
+		endif()
+
+		set(${RESULT} ${SNAKE} PARENT_SCOPE)
+	endforeach()
+endfunction()
+
+function(generate_snake SYMBOL HEAD LENGTH WINDOW RESULT)
+	math(EXPR tail "${HEAD} - ${LENGTH} + 1")
+	math(EXPR WINDOW "${WINDOW} - 1")
+
+	string(LENGTH ${SYMBOL} SYMBOL_LENGTH)
+
+	if(SYMBOL_LENGTH GREATER 1)
+		if((tail GREATER 0) OR (tail EQUAL 0))
+			__snake_tail_positive("${SYMBOL}" ${HEAD} ${tail} ${WINDOW} __RESULT)
+		else()
+			__snake_tail_negative("${SYMBOL}" ${HEAD} ${tail} ${WINDOW} __RESULT)
+		endif()
+	else()
+		__snake_simple("${SYMBOL}" ${HEAD} ${tail} ${WINDOW} __RESULT)
+	endif()
+
+	set(${RESULT} ${__RESULT} PARENT_SCOPE)
+endfunction()

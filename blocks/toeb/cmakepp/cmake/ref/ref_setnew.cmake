@@ -1,0 +1,6 @@
+function(ref_setnew)
+	ref_new()
+  ans(res)
+	ref_set(${res} "${ARGN}")
+  return(${res})
+endfunction()

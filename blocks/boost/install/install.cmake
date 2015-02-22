@@ -1,4 +1,5 @@
 include(boost/install/utils)
+include(boost/install/build_jobs)
 include(CMakeParseArguments)
 
 set(SCOPE PARENT_SCOPE)
@@ -67,18 +68,8 @@ endfunction()
 function(__BII_BOOST_BUILD)
     if(BII_BOOST_LIBS)
         message(STATUS "Building Boost ${BII_BOOST_VERSION} components with toolset ${BII_BOOST_TOOLSET}...")
-    endif()
 
-    foreach(lib ${BII_BOOST_LIBS})
-        message(STATUS "Building ${lib} library...")
-
-        set(__BII_BOOST_B2_CALL_EX ${__BII_BOOST_B2_CALL} --with-${lib})
-        
-        execute_process(COMMAND ${__BII_BOOST_B2_CALL_EX} WORKING_DIRECTORY ${BII_BOOST_DIR}
-                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
-        if(NOT Result EQUAL 0)
-            message(FATAL_ERROR "Failed running ${__BII_BOOST_B2_CALL}:\n${Output}\n${Error}\n")
-        endif()
+        BII_BOOST_BUILD_LIBS_PARALLEL("${BII_BOOST_LIBS}" "${__BII_BOOST_B2_CALL}" "${BII_BOOST_VERBOSE}" "${BII_BOOST_DIR}")
 
         if((NOT (Boost_USE_STATIC_LIBS)) AND (WIN32 OR (CMAKE_SYSTEM_NAME MATCHES "Darwin")))
             file(GLOB __dlls "${BII_BOOST_DIR}/stage/lib/*${__DYNLIB_EXTENSION}")
@@ -91,7 +82,7 @@ function(__BII_BOOST_BUILD)
                 file(COPY ${dll} DESTINATION ${CMAKE_SOURCE_DIR}/../bin/)
             endforeach()
         endif()
-    endforeach()
+    endif()
 endfunction()
 
 function(__BII_BOOST_INSTALL)
