@@ -22,9 +22,10 @@ endfunction()
 function(__global_progress_handler ticks)
 	set(MESSAGE "Go for churros...")
 	string(LENGTH ${MESSAGE} SNAKE_LENGTH)
-	math(EXPR WINDOW "${SNAKE_LENGTH} * 2")
+	math(EXPR WINDOW "${SNAKE_LENGTH}")
+	math(EXPR MAX "(${WINDOW} + ${SNAKE_LENGTH})")
 
-	math(EXPR PROGRESS_COUNTER  "${ticks} % (${WINDOW} + ${SNAKE_LENGTH})")
+	math(EXPR PROGRESS_COUNTER  "${MAX} - (${ticks} % ${MAX})")
 
 	generate_snake("${MESSAGE}" "${PROGRESS_COUNTER}" "${SNAKE_LENGTH}" "${WINDOW}" SNAKE)
 
