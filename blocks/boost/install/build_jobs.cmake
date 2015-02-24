@@ -5,9 +5,19 @@ function(__job_success_handler process_handle)
 	map_get("${__job_handles}" "${process_handle}")
 	ans(lib)
 
+	assign(output = process_handle.stdout)
+	assign(error = process_handle.stderr)
+	assign(result = process_handle.exit_code)
+	assign(output = process_handle.stdout)
+	assign(wd = process_handle.start_info.working_directory)
+
 	#Maybe we need curses for this...
 	echo_append("\r                                                                            ")
-	message("\rFinished building ${lib} library")
+	message("\rFinished building ${lib} library:")
+	message("Working directory: ${wd}")
+	message("Return value: ${result}")
+	message("stdout: ${output}")
+	message("stderr: ${error}")
 endfunction()
 
 function(__job_error_handler process_handle)
@@ -32,6 +42,14 @@ function(__global_progress_handler ticks)
 	echo_append("\rBuilding Boost components, please wait [${SNAKE}]")
 endfunction()
 
+function(__execute_success_handler handle)
+
+endfunction()
+
+function(__execute_error_handler handle)
+	message()
+endfunction()
+
 function(BII_BOOST_BUILD_LIBS_PARALLEL LIBS B2_CALL VERBOSE BOOST_DIR)
 	map_new()
 	ans(__job_handles)
@@ -39,15 +57,11 @@ function(BII_BOOST_BUILD_LIBS_PARALLEL LIBS B2_CALL VERBOSE BOOST_DIR)
 	foreach(lib ${LIBS})
 		message("Starting ${lib} library build job...")
 
-		set(build_script " 
-            execute_process(COMMAND ${B2_CALL} --with-${lib} WORKING_DIRECTORY ${BOOST_DIR}
-                            RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
-            if(NOT Result EQUAL 0)
-                message(FATAL_ERROR \"Failed running ${B2_CALL} --with-${lib}:\n\${Output}\n\${Error}\n\")
-            endif()
-        ")
+		execute(${B2_CALL} --with-${lib} WORKING_DIRECTORY ${BOOST_DIR}
+			    --success-callback __execute_success_handler
+			    --error-callback __job_error_handler
+			    --async)
 
-        process_start_script("${build_script}")
 		ans(handle)
 		set(handles_list ${handles_list} ${handle})
 		map_set("${__job_handles}" "${handle}" "${lib}")
