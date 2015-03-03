@@ -1,9 +1,22 @@
 include(toeb/cmakepp/cmakepp)
 include(boost/install/snake)
 
+function(__update_progress_message)
+	ref_set(${libs_ahead} "")
+	map_foreach("${__job_handles}" "[](handle lib) ref_append_string(${libs_ahead} \"\ \${lib}\")")
+endfunction()
+
 function(__job_success_handler process_handle)
 	map_get("${__job_handles}" "${process_handle}")
 	ans(lib)
+
+	#Remove handle from map after success
+	map_remove("${__job_handles}" "${process_handle}")
+
+	#Update libs list
+	__update_progress_message()
+
+	
 
 	assign(output = process_handle.stdout)
 	assign(error = process_handle.stderr)
@@ -11,13 +24,27 @@ function(__job_success_handler process_handle)
 	assign(output = process_handle.stdout)
 	assign(wd = process_handle.start_info.working_directory)
 
+	set(finish_message "Finished building ${lib} library")
+
 	#Maybe we need curses for this...
-	echo_append("\r                                                                            ")
-	message("\rFinished building ${lib} library:")
-	message("Working directory: ${wd}")
-	message("Return value: ${result}")
-	message("stdout: ${output}")
-	message("stderr: ${error}")
+	if(NOT WIN32)
+		string(LENGTH ${finish_message} finish_message_length)
+		ref_get(${progress_message_length})
+		ans(progress_message_length)
+		string_repeat(" " "${progress_message_length}")
+		ans(CLEAR)
+
+		echo_append("\r${CLEAR}")
+		message("\r${finish_message}")
+	endif()
+
+	if(VERBOSE)
+		message("Process info:")
+		message(" - Working directory: ${wd}")
+		message(" - Return value: ${result}")
+		message(" - stdout: ${output}")
+		message(" - stderr: ${error}")
+	endif()
 endfunction()
 
 function(__job_error_handler process_handle)
@@ -30,7 +57,10 @@ function(__job_error_handler process_handle)
 endfunction()
 
 function(__global_progress_handler ticks)
-	set(MESSAGE "Go for churros...")
+	ref_get(${libs_ahead})
+	ans(libs_ahead)
+
+	set(MESSAGE "Building${libs_ahead} libraries...")
 	string(LENGTH ${MESSAGE} SNAKE_LENGTH)
 	math(EXPR WINDOW "${SNAKE_LENGTH}")
 	math(EXPR MAX "(${WINDOW} + ${SNAKE_LENGTH})")
@@ -39,7 +69,11 @@ function(__global_progress_handler ticks)
 
 	generate_snake("${MESSAGE}" "${PROGRESS_COUNTER}" "${SNAKE_LENGTH}" "${WINDOW}" SNAKE)
 
-	echo_append("\rBuilding Boost components, please wait [${SNAKE}]")
+	set(PROGRESS_MESSAGE "Building Boost components, please wait [${SNAKE}]")
+	string(LENGTH "${PROGRESS_MESSAGE}" PROGRESS_MESSAGE_LENGTH)
+	ref_set("${progress_message_length}" "${PROGRESS_MESSAGE_LENGTH}")
+
+	echo_append("\r${PROGRESS_MESSAGE}")
 endfunction()
 
 function(__execute_success_handler handle)
@@ -66,6 +100,13 @@ function(BII_BOOST_BUILD_LIBS_PARALLEL LIBS B2_CALL VERBOSE BOOST_DIR)
 		set(handles_list ${handles_list} ${handle})
 		map_set("${__job_handles}" "${handle}" "${lib}")
 	endforeach()
+
+	ref_new()
+	ans(libs_ahead)
+	__update_progress_message()
+
+	ref_new()
+	ans(progress_message_length)
 
 	process_wait_all(${handles_list} --idle-callback __global_progress_handler
 		                             --task-complete-callback __job_success_handler)
