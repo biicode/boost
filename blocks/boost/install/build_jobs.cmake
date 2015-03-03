@@ -75,7 +75,11 @@ function(__global_progress_handler ticks)
 	string(LENGTH "${PROGRESS_MESSAGE}" PROGRESS_MESSAGE_LENGTH)
 	ref_set("${progress_message_length}" "${PROGRESS_MESSAGE_LENGTH}")
 
-	echo_append("\r${PROGRESS_MESSAGE}")
+    if(NOT WIN32)
+        echo_append("\r${PROGRESS_MESSAGE}")
+    else()
+        message("${PROGRESS_MESSAGE}")
+    endif()
 endfunction()
 
 function(__execute_success_handler handle)
