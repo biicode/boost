@@ -36,6 +36,8 @@ function(__job_success_handler process_handle)
 
 		echo_append("\r${CLEAR}")
 		message("\r${finish_message}")
+	else()
+		message("${finish_message}")
 	endif()
 
 	if(VERBOSE)
