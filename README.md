@@ -1,4 +1,4 @@
-boost-biicode [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode) [![Build Status](https://webapi.biicode.com/v1/badges/biicode/biicode/boost/master)](https://www.biicode.com/biicode/boost) 
+boost-biicode [![Build Status](https://travis-ci.org/biicode/boost.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode) [![Build Status](https://webapi.biicode.com/v1/badges/biicode/biicode/boost/master)](https://www.biicode.com/biicode/boost) 
 =============
 
 Experimental support for the Boost libraries on biicode 2.0
@@ -220,7 +220,7 @@ The build matrix includes:
  - **Boost linking**: Static or dynamic linking to Boost.
  - **LLVM libc++**: Build with LLVM libc++ or GNU stdlibc++. *Of course GCC builds are done with stdlibc++ only*.
 
-**Current status**: [![Build Status](https://travis-ci.org/Manu343726/boost-biicode.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode)
+**Current status**: [![Build Status](https://travis-ci.org/biicode/boost.svg?branch=master)](https://travis-ci.org/Manu343726/boost-biicode)
 
 Internal setup
 --------------
