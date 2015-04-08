@@ -69,11 +69,12 @@ def settings(default_parser):
 
     #Boost.Log takes so much time to compile, leads to timeouts on Travis CI
     #It was tested on Windows and linux, works 'ok' (Be careful with linking settings)
-    if args.ci: del templates['examples/boost-log']  
+    if args.ci and 'examples/boost-log' in templates: del templates['examples/boost-log']  
 
     if args.exclude:
         for block in args.exclude.split(' '):
-            del templates[block]
+            if block in templates:
+                del templates[block]
     
 
     return utils.GenerationSettings(templates, variables, passwords, 
