@@ -9,81 +9,16 @@ import sys
 import ast
 import argparse
 
-
-class BiiBoostCorruptSettingsError(Exception):
-    pass
+import utils
 
 
-class BiiBoostSettings:
-    def __init__(self, packages, variables, passwords):
-        self._packages = packages
-        self._variables = variables
-        self._passwords = passwords
-
-        self._check()
-
-    def _error(self, message):
-        raise BiiBoostCorruptSettingsError(message)
-
-    def _check_entry(self, block, file, variable):
-        blockPath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                 "blocktemplates", block)
-        filePath = os.path.join(blockPath, file)
-        tag = "<" + variable + ">"
-
-        if os.path.isdir(blockPath):
-            if os.path.exists(filePath):
-                with open(filePath, 'r') as f:
-                    for line in f:
-                        if tag in line:
-                            return
-
-                self._error("No tag '{0}' found on '{1}/{2}'".format(tag, block, file))
-            else:
-                self._error("No '{0}' found inside '{1}' block".format(file, block))
-        else:
-            self._error("No '{0}' block found in block templates directory".format(block))
-
-    def _check(self):
-        for block, (publish, replaces) in self._packages.iteritems():
-            for file, variables in replaces:
-                for variable in variables:
-                    if variable in self._variables:
-                        self._check_entry(block, file, variable)
-                    else:
-                        self._error("No variable corresponding to '{0}' tag found in '{1}/{2}'".format(tag, block, file))
-
-    def packages(self):
-        return self._packages
-
-    def variables(self):
-        return self._variables
-
-    def passwords(self):
-        return self._passwords
 
 
-def latest_block_version(block, track):
-    user = block.split("/")[0]
-    url = ("https://webapi.biicode.com/v1/blocks/{0}/{1}/{2}"
-           .format(user, block, track))
-
-    try:
-        data = json.loads(urllib.urlopen(url).read())
-        version = str(data["version"])
-    except ValueError:
-        version = "-1"
-
-    print "Found " + block + ":" + version
-
-    return version
-
-
-def settings():
+def settings(default_parser):
     parser = argparse.ArgumentParser()
 
     parser.add_argument("track", help="biicode track (Boost version) that will be generated",
-                        choices=['master', '1.57.0', '1.56.0', '1.55.0'])
+                        choices=['master', '.57.0', '1.56.0', '1.55.0'])
     parser.add_argument("--ci-build", "-ci", help="Specifies if the generation is being run inside a CI build", 
                         action="store_true", dest="ci")
     parser.add_argument("--passwords", "-pass", 
@@ -114,7 +49,7 @@ def settings():
                  lambda block, block_track, file: "biicode/boost({0})"
                                                   .format(block_track),
                  "LATEST_BLOCK_VERSION":
-                 lambda block, block_track, file: latest_block_version(block, block_track)}
+                 lambda block, block_track, file: utils.latest_block_version(block, block_track)}
 
     packages = {"biicode/boost"             : (version_tag,          [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"]), ("setup.cmake", ["BIICODE_BOOST_VERSION"])]),
                 "manu343726/math"           : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
@@ -137,7 +72,7 @@ def settings():
             del packages[block]
     
 
-    return BiiBoostSettings(packages, variables, passwords)
+    return utils.GenerationSettings(packages, variables, passwords)
 
 if __name__ == '__main__':
     print(settings())
