@@ -18,7 +18,7 @@ def settings(default_parser):
     parser = argparse.ArgumentParser()
 
     parser.add_argument("track", help="biicode track (Boost version) that will be generated",
-                        choices=['master', '.57.0', '1.56.0', '1.55.0'])
+                        choices=['master', '1.57.0', '1.56.0', '1.55.0'])
     parser.add_argument("--ci-build", "-ci", help="Specifies if the generation is being run inside a CI build", 
                         action="store_true", dest="ci")
     parser.add_argument("--passwords", "-pass", 
