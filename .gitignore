@@ -6,4 +6,6 @@
 /blocks/manu343726/
 /blocks/examples/
 /blocks/biicode/
-settings.pyc
+settings.*
+generate.*
+utils.*

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+curl -s https://raw.githubusercontent.com/Manu343726/biiblock_generator/master/generate.sh | bash /dev/stdin "$@"
