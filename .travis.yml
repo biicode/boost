@@ -46,6 +46,10 @@ env:
   - secure: "nQKI2+GGpRg9iHNF+bk9TmyHa2mJkCVXVGsHHrHuWyCuaqDbntKtqpJJuGFp14gEJagcomLL7xurZUJZxTjJC990M6t0mN8IdNBrL5D+T7Kk3R1z1hd3PAJr39K6SxF/RgwgKS6E/cuuW8RGOBrPdmAsQLg35TxWsP/PIK+jCZw="
   - secure: "MJp0pyP+WfHb0hAibrKYfe8BjgQqPDO0d55TznySfbyhWFfKGPG9xyJz/P96tmYx4dvSeRy/Nqi42H5Jhp2UFpQwQeiLeaKN6nZw+feHI3JSLjmGL6pRmDB0jsjlSiCjFzhP5xERcyd3tNF3RuBH0trrEvJytQOwVUAWggHbIIE="
   - secure: "Cg3wm13IM0jA1B48b6RY1grGSgKZCJElNvxEM/yP74PSpR0v3JKirlTRtpDQWPhiZBzY9/LMSmx+G5OGrr75i2GbgCpxeuXFHndfQcSTTfF3grHm6u1G8dNUwJMFq4WpqbmemxdSRN89Mm3HxOjF9ZRQN0OBWYWaZqVimGKvzqQ="
+  - secure: "daxvaKqDftw7XN1qoPasBxmkgme9n7oYVYEnmEuS7pYhnWzSGb7UK5GSohDCjQQto/lvDEgwsJr9Lg/jVPpZW8xyGD8CyCdA+uO/7X8vrXp7Ebve3IEwr3ve1wPm/peroNMzC4NXUOkVd4zP1FxmRL/NuIvbjB34XFMJlELYCv8="
+  - secure: "VVCzN63rYjhoOJZgatlHnTnivEN/NNL20uDyXZx+CMNMEFLT1GXXNPluTyISLvG87BvaVRjEml/+yZlICiH9Qeh8bOZSqwoOf2PbaDDTfn2zbgX0H1vSS8VHX0xlHeqyKFmyOvAIMqkIDMNrlKJVkz3cVQmMr5ohZToNvbUMnCQ="
+  - secure: "HwkqosTYUMEXpkH7cC8ofecxT7wzMQo4FhVyD47zhfyj4sLfUNvRnBjUKma7lISbjwj6zJ/FCruAckomvbzMP8xAcXmecbvEVLGAX096I9kTuoRT161YIeDb0ESa0vtvqq488cpqHnAvkpHKxQz8mxxBInRtHabD+umDVsDHkHo="
+  - secure: "QGueNA5Vx49Cl7xjtiKDbMKFlsdECieQUdFS6dX8q+HHUnI2gzw5dl3ZLUuJcks3Y9Rjn/uikDKjzD3CF/FCc7o9ynYThGnYWMZ2gnv8kTGSJZF1KzGcD3G8308ct/AEj8JlcD0vn7gpK1Ktr6/Y3bO6vqX6iWbPzDaSfrP4Rqs="
 
 matrix:
   exclude:
@@ -118,7 +122,8 @@ install:
 script:
 - bii init
 - if [ "$BII_BOOST_TRACK" == "master"]; then PUBLISH_EXAMPLES="--publish-examples"; fi
-- ./generate $BII_BOOST_TRACK --passwords "{'biicode' -> '${biicode_password}', 'examples' -> '${examples_password}', 'manu343726' -> '${manu343726_password}'}" $PUBLISH_EXAMPLES --tag STABLE --ci-build
+- ./generate $BII_BOOST_TRACK --passwords "{'biicode' -> '${biicode_password}'}" --no-publish --tag STABLE --ci-build
+- ./trigger_builds.sh --build "${TRAVIS_JOB_NUMBER}" --user "${git_user}" --email "${git_email}" --password "${git_password}"
 - bii find --update
 - bii cpp:configure $configure_params || bii cpp:configure $configure_params
 - bii cpp:build
