@@ -1,6 +1,6 @@
 #!/bin/sh
 
-repos=("biicode/boost-examples-headeronly" )
+repos=( "biicode/boost-examples-headeronly" )
 
 while [[ $# > 1 ]]
 do

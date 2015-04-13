@@ -35,27 +35,6 @@ def settings(default_parser):
                    "files": 
                      {"biicode.conf": ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"],
                       "setup.cmake": ["BIICODE_BOOST_VERSION"]}
-                },
-               
-               "examples/boost-multiindex": 
-                {"publish": args.publish_examples and not args.no_publish,
-                   "tag": args.tag,          
-                   "files": 
-                     {"biicode.conf": ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"]}
-                },
-
-              "examples/boost-phoenix": 
-                {"publish": args.publish_examples and not args.no_publish,
-                 "tag": args.tag,          
-                 "files": 
-                   {"biicode.conf": ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"]}
-                },
-
-               "examples/boost-flyweight": 
-                {"publish": args.publish_examples and not args.no_publish,
-                 "tag": args.tag,          
-                 "files": 
-                   {"biicode.conf": ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"]}
                 }
              }
 
