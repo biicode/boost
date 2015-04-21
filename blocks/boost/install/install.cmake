@@ -12,6 +12,7 @@ function(__BII_BOOST_PRINT_SETUP)
     message(STATUS "Path to package: ${BII_BOOST_PACKAGE_PATH}")
     message(STATUS "Boost directory: ${BII_BOOST_DIR}")
     message(STATUS "Toolset: ${BII_BOOST_TOOLSET}")
+    message(STATUS "Stage: ${BII_BOOST_STAGE_PATH}")
     message(STATUS "Bootstrapper: ${__BII_BOOST_BOOSTRAPER}")
 
     if(Boost_USE_STATIC_LIBS)
@@ -57,6 +58,12 @@ function(__BII_BOOST_BOOTSTRAP)
                         RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
         if(NOT Result EQUAL 0)
             message(FATAL_ERROR "Failed running ${__BII_BOOST_BOOTSTRAP_CALL}:\n${Output}\n${Error}\n")
+        endif()
+
+        execute_process(COMMAND ${__BII_BOOST_B2} tools/bcp WORKING_DIRECTORY ${BII_BOOST_DIR}
+                        RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
+        if(NOT Result EQUAL 0)
+            message(FATAL_ERROR "Failed building Boost.BCP:\n${Output}\n${Error}\n")
         endif()
     else()
         if(__BII_BOOST_VERBOSE)
@@ -137,16 +144,19 @@ function(__BII_BOOST_INSTALL)
 
     #Bootstrap
     if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-        set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.bat ${SCOPE})
-        set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2.exe        ${SCOPE})
-        set(__DYNLIB_EXTENSION     .dll                           ${SCOPE})
+        set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.bat    ${SCOPE})
+        set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2.exe           ${SCOPE})
+        set(__BII_BOOST_BCP        ${BII_BOOST_DIR}/dist/bin/bcp.exe ${SCOPE})
+        set(__DYNLIB_EXTENSION     .dll                              ${SCOPE})
     elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
         set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.sh ${SCOPE})
         set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2           ${SCOPE})
+        set(__BII_BOOST_BCP        ${BII_BOOST_DIR}/dist/bin/bcp ${SCOPE})
         set(__DYNLIB_EXTENSION     .dylib                        ${SCOPE})
     elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(__BII_BOOST_BOOSTRAPER ${BII_BOOST_DIR}/bootstrap.sh ${SCOPE})
         set(__BII_BOOST_B2         ${BII_BOOST_DIR}/b2           ${SCOPE})
+        set(__BII_BOOST_BCP        ${BII_BOOST_DIR}/dist/bin/bcp ${SCOPE})
         set(__DYNLIB_EXTENSION     .so                           ${SCOPE})
     else()
         message(FATAL_ERROR "Unknown platform. Stopping Boost installation")
@@ -163,6 +173,11 @@ function(__BII_BOOST_INSTALL)
         BII_BOOST_COMPUTE_TOOLSET(__BII_BOOST_DEFAULT_TOOLSET)
 
         set(BII_BOOST_TOOLSET ${__BII_BOOST_DEFAULT_TOOLSET} ${SCOPE})
+    endif()
+
+    if(NOT (BII_BOOST_STAGE_PATH))
+        string(REGEX REPLACE " " "_" BII_BOOST_STAGE_PATH ${BII_BOOST_TOOLSET})
+        set(BII_BOOST_STAGE_PATH ${BII_BOOST_DIR}/stage/lib/${BII_BOOST_STAGE_PATH} ${STAGE})
     endif()
 
     if(NOT (BII_BOOST_VARIANT))
@@ -186,7 +201,8 @@ function(__BII_BOOST_INSTALL)
     endif()
 
     set(__BII_BOOST_B2_CALL ${__BII_BOOST_B2} --includedir=${BII_BOOST_DIR} 
-                                              --toolset=${BII_BOOST_TOOLSET} 
+                                              --toolset=${BII_BOOST_TOOLSET}
+                                              --stagedir="${BII_BOOST_STAGE_PATH}"
                                               -j${BII_BOOST_BUILD_J} 
                                               --layout=versioned 
                                               --build-type=complete
@@ -205,7 +221,7 @@ function(__BII_BOOST_INSTALL)
     #FindBoost directories
     set(BOOST_ROOT       "${BII_BOOST_DIR}"         ${SCOPE})
     set(BOOST_INCLUDEDIR "${BOOST_ROOT}"            ${SCOPE})
-    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib/" ${SCOPE})
+    set(BOOST_LIBRARYDIR "${BII_BOOST_STAGE_PATH}" ${SCOPE})
 
 
     # CMake 3.1 on windows does not search for Boost 1.57.0 by default, this is a workaround

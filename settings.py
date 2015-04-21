@@ -35,20 +35,14 @@ def settings(default_parser):
                    "files": 
                      {"biicode.conf": ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"],
                       "setup.cmake": ["BIICODE_BOOST_VERSION"]}
+                },
+               "examples/boost-coroutine": 
+                {"publish": args.publish_examples and not args.no_publish,
+                   "tag": args.tag,          
+                   "files": 
+                     {"biicode.conf": ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION"]}
                 }
              }
-
-                # "examples/boost-log"        : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
-                # "examples/boost-coroutine"  : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
-                # "examples/boost-filesystem" : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
-                # "examples/boost-flyweight"  : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
-                # "examples/boost-multiindex" : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
-                # "examples/boost-phoenix"    : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])]),
-                # "examples/boost-signals"    : (examples_version_tag, [("biicode.conf", ["BIICODE_BOOST_BLOCK", "LATEST_BLOCK_VERSION", "WORKING_TRACK"])])}
-
-    #Boost.Log takes so much time to compile, leads to timeouts on Travis CI
-    #It was tested on Windows and linux, works 'ok' (Be careful with linking settings)
-    if args.ci and 'examples/boost-log' in templates: del templates['examples/boost-log']  
 
     if args.exclude:
         for block in args.exclude.split(' '):
